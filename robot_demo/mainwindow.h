@@ -4,15 +4,12 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include "irobotcreate.h"
+#include "movementcontrol.h"
 
 struct INFO_DATA
 {
     float prejdena_vzdialenost;
     float uhol_otocenia;
-};
-struct POSITION{
-    float x;
-    float y;
 };
 
 namespace Ui {
@@ -30,8 +27,10 @@ public:
 
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
     static int demoCallback(CreateSensors inputData,void *ioPointer);
-        iRobotCreate robot;
+    iRobotCreate robot;
+
 private slots:
     void on_pushButton_clicked();
 
@@ -52,7 +51,6 @@ private:
     float uhol_otocenia;
     float napatie_bateriek;
 
-    POSITION irob_pose;
     INFO_DATA irob_data;
 
 };

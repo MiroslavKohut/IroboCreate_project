@@ -15,10 +15,10 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     irobotcreate.cpp \
-    movement_control.cpp
+    movementcontrol.cpp
 
 HEADERS  += mainwindow.h \
     irobotcreate.h \
-    movement_control.h
+    movementcontrol.h
 
 FORMS    += mainwindow.ui
