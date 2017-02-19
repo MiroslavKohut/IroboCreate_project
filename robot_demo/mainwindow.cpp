@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#define TIME_STAMP_S 0.007
+
 using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -8,12 +10,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    robot_movemet = new MovementControl(TIME_STAMP_S, this->robot);
     irob_data = INFO_DATA();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete robot_movemet;
 }
 
 
@@ -30,6 +34,8 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
 
     currentWindow->irob_data.prejdena_vzdialenost =  currentWindow->irob_data.prejdena_vzdialenost + inputData.Distance;
     currentWindow->irob_data.uhol_otocenia =  currentWindow->irob_data.uhol_otocenia + inputData.Angle;
+
+    currentWindow->robot_movemet->updatePose(inputData.Distance,inputData.Angle);
 
 
     uhol = QString::number(currentWindow->irob_data.uhol_otocenia);
@@ -50,7 +56,6 @@ void MainWindow::on_pushButton_clicked()
     robot.ConnectToPort("/dev/robot",this);
     connect( this, SIGNAL( showMB() ), this, SLOT( showMessageBox() ), Qt::BlockingQueuedConnection );
     robot.dataProcess(this,&demoCallback);
-
 }
 
 void MainWindow::on_pushButton_2_clicked()

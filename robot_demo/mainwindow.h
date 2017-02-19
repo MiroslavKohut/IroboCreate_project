@@ -46,13 +46,13 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    MovementControl *robot_movemet;
 
     float prejdena_vzdialenost;
     float uhol_otocenia;
     float napatie_bateriek;
 
     INFO_DATA irob_data;
-
 };
 
 #endif // MAINWINDOW_H
