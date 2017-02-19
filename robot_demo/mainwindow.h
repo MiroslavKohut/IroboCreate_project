@@ -5,6 +5,16 @@
 #include <QMessageBox>
 #include "irobotcreate.h"
 
+struct INFO_DATA
+{
+    float prejdena_vzdialenost;
+    float uhol_otocenia;
+};
+struct POSITION{
+    float x;
+    float y;
+};
+
 namespace Ui {
 class MainWindow;
 }
@@ -37,6 +47,13 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    float prejdena_vzdialenost;
+    float uhol_otocenia;
+    float napatie_bateriek;
+
+    POSITION irob_pose;
+    INFO_DATA irob_data;
 
 };
 
