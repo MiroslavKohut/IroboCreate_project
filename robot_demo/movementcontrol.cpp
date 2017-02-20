@@ -1,8 +1,8 @@
 #include "movementcontrol.h"
 #include <math.h>
-
-#define angl_dz 5
-#define pos_dz 5
+#define P_REG 10
+#define ANGL_DZ 5
+#define POS_DZ 5
 /*Public methods*/
 MovementControl::MovementControl(float dt, iRobotCreate & robot)
 {
@@ -10,9 +10,9 @@ MovementControl::MovementControl(float dt, iRobotCreate & robot)
     irob_current_pose = POSITION();
     irob_desired_pose = POSITION();
     this->robot=robot;
-    speed_up=0;
-    speed_sat=35;
-
+    speed_up=10;
+    speed_sat=10;
+    pos_reach=true;
 }
 
 MovementControl::~MovementControl()
@@ -79,27 +79,38 @@ float MovementControl::comuteTranslation(){
 }
 
 bool MovementControl::pidControlRotation(){
-
+//predpokladame
     float temp_angle;
+    float cur_speed;
 
-    if (curr_pos_reach){return true;}
+    if (pos_reach){return true;}
     else{
     temp_angle=MovementControl::comuteAngle();
-    if (fabs(temp_angle)<angl_dz){
+    if (fabs(temp_angle)<ANGL_DZ){
         robot.move(0,0);
-        speed_up=0;
+        speed_up=10;
         return true;
     }
     else if (temp_angle>0) {
-        robot.move(speed_up,-speed_up);
-        speed_up+=5;
+        cur_speed=temp_angle*P_REG/speed_up;
+        if(cur_speed>speed_sat){
+            cur_speed=speed_sat;
+        }
+        robot.move(-(DWORD)cur_speed,(DWORD)cur_speed);
+        speed_up-=1;
     }
     else if (temp_angle<0) {
-        robot.move(-speed_up,speed_up);
-        speed_up+=5;
+        cur_speed=temp_angle*P_REG/speed_up;
+        if(cur_speed>speed_sat){
+            cur_speed=speed_sat;
+        }
+
+        robot.move((DWORD)cur_speed,-(DWORD)cur_speed);
+        speed_up-=1;
     }
-    if (speed_up>speed_sat){
-        speed_up=speed_sat;
+
+    if (speed_up<=1){
+        speed_up=1;
     }
 
 
@@ -108,24 +119,34 @@ bool MovementControl::pidControlRotation(){
 
 bool MovementControl::pidControlTranslation(){
 
+    float cur_speed;
     float temp_dist;
-    if (curr_pos_reach){return true;}
+    if (pos_reach){return true;}
     else{
         temp_dist=comuteTranslation();
 
-        if (fabs(temp_dist)<pos_dz){
+        if (fabs(temp_dist)<POS_DZ){
             robot.move(0,0);
-            speed_uppos=0;
+            speed_uppos=10;
             return true;
         }
         else {
-            robot.move(speed_uppos,speed_uppos);
-            speed_uppos+=5;
+            cur_speed=temp_dist*P_REG/speed_uppos;
+            if(cur_speed>speed_sat){
+                cur_speed=speed_sat;
+            }
+            robot.move((DWORD)cur_speed,(DWORD)cur_speed);
+            speed_uppos-=1;
         }
-        if (speed_uppos>speed_sat){
-            speed_uppos=speed_sat;
+        if (speed_uppos<=1){
+            speed_uppos=1;
         }
+
     }
 }
 
+void MovementControl::setPosReach(bool pos_reach_){
+    pos_reach=pos_reach_;
+}
 
+//TODO setter current position reach

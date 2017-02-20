@@ -16,16 +16,18 @@ public:
     ~MovementControl();
     void moveToNewPose(float speed, POSITION pose);
     void updatePose(float pose_change, float angle_change);
+    void setPosReach(bool pos_reach_);
+
 
 private:
     //variablese
     float dt;
-
+    bool pos_reach;
     iRobotCreate robot;
     POSITION irob_current_pose;
     POSITION irob_desired_pose;
     DWORD speed_up;
-    DWORD speed_sat;
+    float speed_sat;
     DWORD speed_uppos;
     //methods
     bool pidControlTranslation();
