@@ -79,49 +79,53 @@ float MovementControl::comuteTranslation(){
 }
 
 bool MovementControl::pidControlRotation(){
+
 //predpokladame
     float temp_angle;
     float cur_speed;
 
     if (pos_reach){return true;}
     else{
-    temp_angle=MovementControl::comuteAngle();
-    if (fabs(temp_angle)<ANGL_DZ){
-        robot.move(0,0);
-        speed_up=10;
-        return true;
-    }
-    else if (temp_angle>0) {
-        cur_speed=temp_angle*P_REG/speed_up;
-        if(cur_speed>speed_sat){
-            cur_speed=speed_sat;
-        }
-        robot.move(-(DWORD)cur_speed,(DWORD)cur_speed);
-        speed_up-=1;
-    }
-    else if (temp_angle<0) {
-        cur_speed=temp_angle*P_REG/speed_up;
-        if(cur_speed>speed_sat){
-            cur_speed=speed_sat;
+
+        temp_angle=MovementControl::comuteAngle();
+
+        if (fabs(temp_angle)<ANGL_DZ){
+            robot.move(0,0);
+            speed_up=10;
+            return true;
         }
 
-        robot.move((DWORD)cur_speed,-(DWORD)cur_speed);
-        speed_up-=1;
+        else if (temp_angle>0) {
+            cur_speed=temp_angle*P_REG/speed_up;
+            if(cur_speed>speed_sat){
+                cur_speed=speed_sat;
+            }
+            robot.move(-(DWORD)cur_speed,(DWORD)cur_speed);
+            speed_up-=1;
+        }
+
+        else if (temp_angle<0) {
+            cur_speed=temp_angle*P_REG/speed_up;
+            if(cur_speed>speed_sat){
+                cur_speed=speed_sat;
+            }
+
+            robot.move((DWORD)cur_speed,-(DWORD)cur_speed);
+            speed_up-=1;
+        }
+        if (speed_up<=1){
+            speed_up=1;
+        }
     }
-
-    if (speed_up<=1){
-        speed_up=1;
-    }
-
-
-}
 }
 
 bool MovementControl::pidControlTranslation(){
 
     float cur_speed;
     float temp_dist;
+
     if (pos_reach){return true;}
+
     else{
         temp_dist=comuteTranslation();
 
@@ -146,7 +150,6 @@ bool MovementControl::pidControlTranslation(){
 }
 
 void MovementControl::setPosReach(bool pos_reach_){
-    pos_reach=pos_reach_;
+    this->pos_reach = pos_reach_;
 }
 
-//TODO setter current position reach

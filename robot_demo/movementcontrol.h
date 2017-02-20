@@ -26,9 +26,11 @@ private:
     iRobotCreate robot;
     POSITION irob_current_pose;
     POSITION irob_desired_pose;
+
     DWORD speed_up;
     float speed_sat;
     DWORD speed_uppos;
+
     //methods
     bool pidControlTranslation();
     bool pidControlRotation();
