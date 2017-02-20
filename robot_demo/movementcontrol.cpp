@@ -1,6 +1,8 @@
 #include "movementcontrol.h"
 #include <math.h>
 
+#define angl_dz 5
+#define pos_dz 5
 /*Public methods*/
 MovementControl::MovementControl(float dt, iRobotCreate & robot)
 {
@@ -8,6 +10,8 @@ MovementControl::MovementControl(float dt, iRobotCreate & robot)
     irob_current_pose = POSITION();
     irob_desired_pose = POSITION();
     this->robot=robot;
+    speed_up=0;
+    speed_sat=35;
 
 }
 
@@ -27,9 +31,9 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 void MovementControl::moveToNewPose(float speed, POSITION pose){
 
     this->irob_desired_pose = pose;
-    if(this->pidControlRotation())
+    if(this->pidControlRotation()){
         this->pidControlTranslation();
-
+    }
 }
 
 
@@ -76,12 +80,52 @@ float MovementControl::comuteTranslation(){
 
 bool MovementControl::pidControlRotation(){
 
+    float temp_angle;
+
+    if (curr_pos_reach){return true;}
+    else{
+    temp_angle=MovementControl::comuteAngle();
+    if (fabs(temp_angle)<angl_dz){
+        robot.move(0,0);
+        speed_up=0;
+        return true;
+    }
+    else if (temp_angle>0) {
+        robot.move(speed_up,-speed_up);
+        speed_up+=5;
+    }
+    else if (temp_angle<0) {
+        robot.move(-speed_up,speed_up);
+        speed_up+=5;
+    }
+    if (speed_up>speed_sat){
+        speed_up=speed_sat;
+    }
 
 
+}
 }
 
 bool MovementControl::pidControlTranslation(){
 
+    float temp_dist;
+    if (curr_pos_reach){return true;}
+    else{
+        temp_dist=comuteTranslation();
+
+        if (fabs(temp_dist)<pos_dz){
+            robot.move(0,0);
+            speed_uppos=0;
+            return true;
+        }
+        else {
+            robot.move(speed_uppos,speed_uppos);
+            speed_uppos+=5;
+        }
+        if (speed_uppos>speed_sat){
+            speed_uppos=speed_sat;
+        }
+    }
 }
 
 
