@@ -2,7 +2,7 @@
 #include <math.h>
 
 /*Public methods*/
-MovementControl::MovementControl(float dt,iRobotCreate robot)
+MovementControl::MovementControl(float dt, iRobotCreate & robot)
 {
     this->dt = dt;
     irob_current_pose = POSITION();

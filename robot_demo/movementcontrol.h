@@ -12,7 +12,7 @@ struct POSITION{
 class MovementControl
 {
 public:
-    MovementControl(float dt, iRobotCreate robot);
+    MovementControl(float dt, iRobotCreate& robot);
     ~MovementControl();
     void moveToNewPose(float speed, POSITION pose);
     void updatePose(float pose_change, float angle_change);
