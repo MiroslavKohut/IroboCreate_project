@@ -7,6 +7,7 @@ MovementControl::MovementControl(float dt, iRobotCreate & robot)
     this->dt = dt;
     irob_current_pose = POSITION();
     irob_desired_pose = POSITION();
+    this->robot=robot;
 
 }
 
