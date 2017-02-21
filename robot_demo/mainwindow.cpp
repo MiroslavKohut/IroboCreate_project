@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    robot_movemet = new MovementControl(TIME_STAMP_S, this->robot);
     irob_data = INFO_DATA();
 }
 
@@ -18,8 +17,8 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete robot_movemet;
+    delete robot;
 }
-
 
 int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
 {
@@ -33,9 +32,9 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
     vystup = QString::number(inputData.Voltage);
 
     currentWindow->irob_data.prejdena_vzdialenost =  currentWindow->irob_data.prejdena_vzdialenost + inputData.Distance;
-    currentWindow->irob_data.uhol_otocenia =  currentWindow->irob_data.uhol_otocenia + inputData.Angle;
+    currentWindow->irob_data.uhol_otocenia =  currentWindow->irob_data.uhol_otocenia -inputData.Angle;
 
-    currentWindow->robot_movemet->updatePose(inputData.Distance,inputData.Angle);
+    currentWindow->robot_movemet->updatePose(inputData.Distance,-inputData.Angle); //angle opacny z dovodu opacneho naprogramovania rotacii
 
 
     uhol = QString::number(currentWindow->irob_data.uhol_otocenia);
@@ -53,19 +52,19 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
 
 void MainWindow::on_pushButton_clicked()
 {
-    robot.ConnectToPort("/dev/robot",this);
+    robot= new iRobotCreate();
+    robot->ConnectToPort("/dev/robot",this);
     connect( this, SIGNAL( showMB() ), this, SLOT( showMessageBox() ), Qt::BlockingQueuedConnection );
-    robot.dataProcess(this,&demoCallback);
+    robot->dataProcess(this,&demoCallback);
+
+    robot_movemet = new MovementControl(TIME_STAMP_S,robot);
 }
 
 void MainWindow::on_pushButton_2_clicked()
 {
-   /* robot.move(-35,35);
-    usleep(3000*1000);
-    robot.move(50,50);
-    usleep(3000*1000);
-    robot.move(0,0);
-
-*/
-
+    robot_movemet->robRotateR(100);
+    usleep(2000*1000);
+    robot_movemet->robMove(200);
+    usleep(1000*1000);
+    robot_movemet->robStop();
 }
