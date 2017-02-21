@@ -125,7 +125,7 @@ int rplidar::stop()
 {
     stopMeasurement=1;
     pthread_join(threadHandle,NULL);
-    char request[]={0xa5, 0x25};
+    char request[]={(char)0xa5, (char)0x25};
    // int Pocet=0;
     write(hCom,&request,2);
 
