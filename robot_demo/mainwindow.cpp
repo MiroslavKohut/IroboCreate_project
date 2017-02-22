@@ -68,6 +68,7 @@ void MainWindow::on_pushButton_2_clicked()
     robot_movemet->new_pose.y = 100;
     robot_movemet->new_pose.angle = 0;
     robot_movemet->setPosReach(false);
+    //TODO OTESTOVAT ATAN 2 a upravit  ratanie anglu
     /*new_pose.x = 0;
     new_pose.y = 100;
     new_pose.angle = 0;*/

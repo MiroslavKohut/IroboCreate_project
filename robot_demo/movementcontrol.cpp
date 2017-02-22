@@ -112,38 +112,27 @@ void MovementControl::moveToNewPose(float speed){
 /*Private methods*/
 float MovementControl::comuteAngle(){
 
-   float x = this->irob_current_pose.x - this->irob_desired_pose.x;
-   float y = this->irob_current_pose.y - this->irob_desired_pose.y;
+   float x =  this->irob_desired_pose.x - this->irob_current_pose.x;
+   float y =  this->irob_desired_pose.y - this->irob_current_pose.y;
 
    float angle_from_y;
 
-   if (x == 0 && y > 0){
-       angle_from_y = -180;
+   if (y >= 0){
+       angle_from_y = 90 - degTorad(atan2(x,y));
    }
-   else if (x == 0 && y < 0){
-       angle_from_y = 0;
+   else if (y < 0 && x >= 0){
+       angle_from_y = -90 + degTorad(atan2(x,y));
    }
-   else if (y == 0 && x < 0){
-       angle_from_y = 90;
+   else if(y < 0 && x < 0){
+       angle_from_y = - 90 - (180 + degTorad(atan2(x,y)));
    }
-   else if (y == 0 && x > 0){
-       angle_from_y = -90;
-   }
-   else if (y > 0 && x < 0){
-      angle_from_y = -(degTorad(atan2(x,y)) + 180);
-   }
-   else if (y > 0 && x > 0){
-      angle_from_y = -(degTorad(atan2(x,y)) - 180);
-   }
-   else
-      angle_from_y = degTorad(atan2(x,y));
 
    if (irob_current_pose.angle  == 0)
    {
        return angle_from_y;
    }
    else{
-       return angle_from_y - irob_current_pose.angle ;
+       return angle_from_y - irob_current_pose.angle;
    }
 
 }
@@ -152,6 +141,7 @@ float MovementControl::comuteTranslation(){
 
     float x = this->irob_current_pose.x - this->irob_desired_pose.x;
     float y = this->irob_current_pose.y - this->irob_desired_pose.y;
+
     return sqrt(x*x + y*y);
 
 }
