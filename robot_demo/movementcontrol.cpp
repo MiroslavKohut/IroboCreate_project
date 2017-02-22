@@ -104,7 +104,10 @@ void MovementControl::moveToNewPose(float speed){
 
     this->irob_desired_pose = new_pose;
     if(this->pidControlRotation()){
-        this->pidControlTranslation();
+        if(this->pidControlTranslation()){
+            setPosReach(true);
+        }
+
     }
 }
 
@@ -207,7 +210,6 @@ bool MovementControl::pidControlTranslation(){
             //this->robot->move(0,0);
             this->robStop();
             speed_uppos=10;
-            this->setPosReach(true);
             return true;
         }
         else{
