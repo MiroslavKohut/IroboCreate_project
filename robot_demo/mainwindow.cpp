@@ -40,6 +40,8 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
     uhol = QString::number(currentWindow->irob_data.uhol_otocenia);
     vzdialenost = QString::number(currentWindow->irob_data.prejdena_vzdialenost);
 
+    currentWindow->robot_movemet->moveToNewPose(50);
+
     currentWindow->ui->label->setText(QString::number(inputData.Voltage));
     currentWindow->ui->distance->setText(vzdialenost);
     currentWindow->ui->angle->setText(uhol); 
@@ -62,9 +64,32 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    robot_movemet->robRotateR(100);
+    robot_movemet->new_pose.x = 100;
+    robot_movemet->new_pose.y = 100;
+    robot_movemet->new_pose.angle = 0;
+    robot_movemet->setPosReach(false);
+    /*new_pose.x = 0;
+    new_pose.y = 100;
+    new_pose.angle = 0;*/
+    /*robot_movemet->robRotateR(100);
     usleep(2000*1000);
     robot_movemet->robMove(200);
     usleep(1000*1000);
     robot_movemet->robStop();
+    */
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    robot_movemet->setPosReach(true);
+    robot_movemet->robStop();
+    /*new_pose.x = 0;
+    new_pose.y = 100;
+    new_pose.angle = 0;*/
+    /*robot_movemet->robRotateR(100);
+    usleep(2000*1000);
+    robot_movemet->robMove(200);
+    usleep(1000*1000);
+    robot_movemet->robStop();
+    */
 }

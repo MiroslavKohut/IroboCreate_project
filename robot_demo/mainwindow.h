@@ -44,6 +44,8 @@ private slots:
                 exit(-1);
             }
 
+    void on_pushButton_3_clicked();
+
 private:
     Ui::MainWindow *ui;
     MovementControl *robot_movemet;

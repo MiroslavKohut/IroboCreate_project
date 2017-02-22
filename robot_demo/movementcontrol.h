@@ -14,7 +14,7 @@ class MovementControl
 public:
     MovementControl(float dt,iRobotCreate *robot);
     ~MovementControl();
-    void moveToNewPose(float speed, POSITION pose);
+    void moveToNewPose(float speed);
     void updatePose(float pose_change, float angle_change);
     void setPosReach(bool pos_reach_);
     float degTorad(float data);
@@ -23,6 +23,8 @@ public:
     float robRotateL(DWORD speed);
     float robMove(DWORD speed);
     void robStop();
+
+    POSITION new_pose;
 
 
 
