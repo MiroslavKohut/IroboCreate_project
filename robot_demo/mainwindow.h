@@ -29,7 +29,7 @@ public:
     ~MainWindow();
 
     static int demoCallback(CreateSensors inputData,void *ioPointer);
-    iRobotCreate robot;
+    iRobotCreate *robot;
 
 private slots:
     void on_pushButton_clicked();
@@ -43,6 +43,8 @@ private slots:
                 Msgbox.exec();
                 exit(-1);
             }
+
+    void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;
