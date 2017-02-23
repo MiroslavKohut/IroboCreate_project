@@ -62,7 +62,45 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
     float angle=0;
 
-    switch(movement_state){
+
+    //todo teting of remake switch statement to if statement
+
+    if(movement_state == 1 || pose_change > 0){
+
+        if (this->irob_current_pose.angle  <= 90)
+            angle = abs(this->irob_current_pose.angle  - 90);
+        else if(this->irob_current_pose.angle  > 90 && this->irob_current_pose.angle  <= 180){
+            angle = 450 - angle_change ;
+        }
+        else if(this->irob_current_pose.angle  < 0 && this->irob_current_pose.angle  >= -180){
+            angle = 90 + abs(this->irob_current_pose.angle);
+        }
+        dist_sum = dist_sum + pose_change;
+
+
+        this->irob_current_pose.x = irob_start_pose.x + dist_sum * cos(degTorad(angle));
+        this->irob_current_pose.y = irob_start_pose.y + dist_sum * sin(degTorad(angle));
+        //std::cout << "istance: " << dist_sum << "start" << irob_start_pose.x << std::endl;
+    }
+
+    if(movement_state == 2 || angle_change > 0){
+
+        this->irob_current_pose.angle = this->irob_current_pose.angle + angle_change;
+
+    }
+
+    if(movement_state == 0 && pose_change == 0 && angle_change == 0){
+
+        dist_sum =0;
+        irob_start_pose.x = this->irob_current_pose.x;
+        irob_start_pose.y = this->irob_current_pose.y;
+
+    }
+
+
+
+
+   /* switch(movement_state){
         case 1 :
 
             if (this->irob_current_pose.angle  <= 90)
@@ -90,7 +128,7 @@ void MovementControl::updatePose(float pose_change, float angle_change){
         dist_sum =0;
         irob_start_pose.x = this->irob_current_pose.x;
         irob_start_pose.y = this->irob_current_pose.y;
-    }
+    }*/
 
     }
 

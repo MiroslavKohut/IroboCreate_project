@@ -34,21 +34,20 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
     currentWindow->irob_data.prejdena_vzdialenost =  currentWindow->irob_data.prejdena_vzdialenost + inputData.Distance;
     currentWindow->irob_data.uhol_otocenia =  currentWindow->irob_data.uhol_otocenia -inputData.Angle;
 
-    currentWindow->robot_movemet->updatePose(inputData.Distance,-inputData.Angle); //angle opacny z dovodu opacneho naprogramovania rotacii
-
-
     uhol = QString::number(currentWindow->irob_data.uhol_otocenia);
     vzdialenost = QString::number(currentWindow->irob_data.prejdena_vzdialenost);
 
+
+    currentWindow->robot_movemet->updatePose(inputData.Distance,-inputData.Angle); //angle opacny z dovodu opacneho naprogramovania rotacii
     currentWindow->robot_movemet->moveToNewPose(50);
+
+
+    //VYPIS
 
     currentWindow->ui->label->setText(QString::number(inputData.Voltage));
     currentWindow->ui->distance->setText(vzdialenost);
     currentWindow->ui->angle->setText(uhol); 
 
-    // currentWindow->ui->label-setText()
-    //printf("nejde\n");
-    //printf("data %i\n",inputData.BatteryCapacity);
 }
 
 

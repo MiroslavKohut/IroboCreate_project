@@ -7,6 +7,7 @@ Mapping::Mapping()
     lidar.connect("/dev/laser");
     lidar.enable();
     lidar.start();
+
     this->closest_distance = 0;
     this->closest_point = POINT();
 }
