@@ -7,44 +7,74 @@ Mapping::Mapping()
     lidar.connect("/dev/laser");
     lidar.enable();
     lidar.start();
-
+    mapping_run = false;
     this->closest_distance = 0;
     this->closest_point = POINT();
+
 }
 
 Mapping::~Mapping()
 {
+    pthread_join(mapping_thread,NULL);
+}
+
+bool Mapping::getMappingStatus(){
+
+    pthread_mutex_lock (&mapping_status_lock);
+    bool data = mapping_run;
+    pthread_mutex_unlock (&mapping_status_lock);
+    return data;
+}
+
+void Mapping::setMappingStatus(bool data){
+
+    pthread_mutex_lock (&mapping_status_lock);
+    mapping_run = data;
+    pthread_mutex_unlock (&mapping_status_lock);
+    return;
+}
+
+void Mapping::startMapping(){
+
+    if(!getMappingStatus()){
+        setMappingStatus(true);
+        thread_id=pthread_create(&mapping_thread,NULL,&mappingThreadFun,(void *)this);
+    }
+    return;
+}
+
+void Mapping::stopMapping(){
+
+    setMappingStatus(false);
+    pthread_join(mapping_thread,NULL);
 
 }
 
-void Mapping::getPoints(){
-
-    LaserMeasurement measure=lidar.getMeasurement();
-    float distance=0;
+int Mapping::getPoints(){
+    
     float angle=0;
     POINT point;
 
-    points.begin();
-    for(int i=0; i<measure.numberOfScans;i++)
-    {
-        if (measure.Data[i].scanAngle <= 90)
-            angle = abs(measure.Data[i].scanAngle - 90);
-        else if(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360){
-            angle = 450 - measure.Data[i].scanAngle;
-        }
+    while(getMappingStatus()){
 
-        point.x = cos(angle)*measure.Data[i].scanDistance;
-        point.y = sin(angle)*measure.Data[i].scanDistance;
-        points.push_back(point);
+        LaserMeasurement measure=lidar.getMeasurement();
 
-        if (measure.Data[i].scanDistance > distance){
-            distance = measure.Data[i].scanDistance;
+        points.begin();
+        for(int i=0; i<measure.numberOfScans;i++)
+        {
+            if (measure.Data[i].scanAngle <= 90)
+                angle = abs(measure.Data[i].scanAngle - 90);
+            else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
+                angle = 450 - measure.Data[i].scanAngle;
+            }
 
-            this->closest_point = point;
-            this->closest_distance = distance;
+            point.x = cos(angle)*measure.Data[i].scanDistance;
+            point.y = sin(angle)*measure.Data[i].scanDistance;
+            points.push_back(point);
         }
 
     }
+    return 0;
 
 }
 

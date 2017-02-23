@@ -128,9 +128,9 @@ void MovementControl::updatePose(float pose_change, float angle_change){
         dist_sum =0;
         irob_start_pose.x = this->irob_current_pose.x;
         irob_start_pose.y = this->irob_current_pose.y;
-    }*/
-
     }
+
+    }*/
 
     std::cout << "angle" << this->irob_current_pose.angle   << std::endl;
 

@@ -5,6 +5,8 @@
 #include "rplidar.h"
 #include <iostream>
 #include <vector>
+#include <pthread.h>
+
 
 struct POINT{
     float x;
@@ -18,6 +20,9 @@ public:
     ~Mapping();
 
 private:
+    /* methods */
+    void setMappingStatus(bool data);
+    bool getMappingStatus();
     /* variables */
 
     rplidar lidar;
@@ -25,10 +30,35 @@ private:
     POINT closest_point;
     float closest_distance;
 
+    //thread variables
+    bool mapping_run;
+    pthread_t mapping_thread; // handle na vlakno
+    int thread_id; //id vlakna
+    int thread_out;
+
+    pthread_mutex_t mapping_status_lock;
+   /* pthread_mutex_lock (&mutexsum);
+    dotstr.sum += mysum;
+    pthread_mutex_unlock (&mutexsum);*/
+
 protected:
 
-    void getPoints();
+    int getPoints();
     bool checkMovement();
+    void startMapping();
+    void stopMapping();
+
+private:
+
+    //--spustenie merania v novom vlakne (vycitavanie bezi v novom vlakne. treba ho stopnut ak chceme poslat request)
+    static void *mappingThreadFun(void *param)
+    {
+        Mapping *mapping=(Mapping*)param;
+
+        mapping->thread_out = mapping->getPoints();
+
+        return &(mapping->thread_out);
+    }
 
 };
 
