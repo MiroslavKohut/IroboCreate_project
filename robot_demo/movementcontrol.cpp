@@ -175,7 +175,7 @@ float MovementControl::comuteAngle(){
        std::cout << "ATAN: " << radTodeg(atan2(y,x))<< std::endl;
    }
    else if (y < 0 && x >= 0){
-       angle_from_y = -90 + radTodeg(atan2(y,x));
+       angle_from_y = fabs(-90 + radTodeg(atan2(y,x)));
    }
    else if(y < 0 && x < 0){
        angle_from_y = - 90 - (180 + radTodeg(atan2(y,x)));
@@ -184,12 +184,12 @@ float MovementControl::comuteAngle(){
    if (irob_current_pose.angle  == 0)
    {
        //std::cout << "Uhol1: " << angle_from_y << std::endl;
-       return this->irob_desired_pose.angle - angle_from_y;
+       return angle_from_y;
 
    }
    else{
       //std::cout << "Uhol2: " << angle_from_y << std::endl;
-       return this->irob_desired_pose.angle - angle_from_y - irob_current_pose.angle;
+       return angle_from_y - irob_current_pose.angle;
    }
 
 }
@@ -213,6 +213,8 @@ bool MovementControl::pidControlRotation(){
     else{
 
         temp_angle=MovementControl::comuteAngle();
+
+        std::cout << "TEMP ANGLE " << temp_angle << std::endl;
 
         if (fabs(temp_angle)<ANGL_DZ){
             //this->robot->move(0,0);

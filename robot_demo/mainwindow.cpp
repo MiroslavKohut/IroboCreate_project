@@ -67,8 +67,8 @@ void MainWindow::on_pushButton_2_clicked(/*void *ioPointer*/)
     /*robot_movemet->new_pose.x = currentWindow->ui->lineEdit->text().toInt();
     robot_movemet->new_pose.y = currentWindow->ui->lineEdit_2->text().toInt();
     robot_movemet->new_pose.angle = currentWindow->ui->lineEdit_3->text().toInt();*/
-    robot_movemet->new_pose.x = 0;
-    robot_movemet->new_pose.y = -100;
+    robot_movemet->new_pose.x = -50;
+    robot_movemet->new_pose.y = -50;
     robot_movemet->new_pose.angle = 0;
     robot_movemet->setPosReach(false);
     //TODO OTESTOVAT ATAN 2 a upravit  ratanie anglu
