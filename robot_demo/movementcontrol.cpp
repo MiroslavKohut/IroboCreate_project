@@ -1,9 +1,10 @@
 #include "movementcontrol.h"
 #include <math.h>
-#define P_REG 10
-#define ANGL_DZ 15
-#define POS_DZ 5
+#define P_REG 2.5
+#define ANGL_DZ 5
+#define POS_DZ 15
 #define RAD_DEG M_PI/180
+#define DEG_RAD 180/M_PI
 /*Public methods*/
 MovementControl::MovementControl(float dt, iRobotCreate *robot)
 {
@@ -19,7 +20,7 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot)
 
     speed_up=10;
     speed_uppos = 10;
-    speed_sat=250;
+    speed_sat=100;
     pos_reach=true;
     dist_sum = 0;
 
@@ -34,6 +35,11 @@ MovementControl::~MovementControl()
 float MovementControl::degTorad(float data){
     return data * RAD_DEG;
 }
+
+float MovementControl::radTodeg(float data){
+    return data * DEG_RAD;
+}
+
 
 float MovementControl::robRotateR(DWORD speed){
     movement_state = 2;
@@ -140,6 +146,8 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
 void MovementControl::moveToNewPose(float speed){
 
+    if (new_pose.angle == -180)
+        new_pose.angle = -179.8;
     this->irob_desired_pose = new_pose;
     if(this->pidControlRotation()){
         if(this->pidControlTranslation()){
@@ -158,22 +166,30 @@ float MovementControl::comuteAngle(){
 
    float angle_from_y;
 
-   if (y >= 0){
-       angle_from_y = 90 - degTorad(atan2(x,y));
+   if(x== 0 & y == 0){
+      angle_from_y = 0;
+   }
+   else if (y >= 0){
+       angle_from_y = 90 - radTodeg(atan2(y,x));
+
+       std::cout << "ATAN: " << radTodeg(atan2(y,x))<< std::endl;
    }
    else if (y < 0 && x >= 0){
-       angle_from_y = -90 + degTorad(atan2(x,y));
+       angle_from_y = -90 + radTodeg(atan2(y,x));
    }
    else if(y < 0 && x < 0){
-       angle_from_y = - 90 - (180 + degTorad(atan2(x,y)));
+       angle_from_y = - 90 - (180 + radTodeg(atan2(y,x)));
    }
 
    if (irob_current_pose.angle  == 0)
    {
-       return angle_from_y;
+       //std::cout << "Uhol1: " << angle_from_y << std::endl;
+       return this->irob_desired_pose.angle - angle_from_y;
+
    }
    else{
-       return angle_from_y - irob_current_pose.angle;
+      //std::cout << "Uhol2: " << angle_from_y << std::endl;
+       return this->irob_desired_pose.angle - angle_from_y - irob_current_pose.angle;
    }
 
 }
@@ -197,7 +213,6 @@ bool MovementControl::pidControlRotation(){
     else{
 
         temp_angle=MovementControl::comuteAngle();
-        std::cout << "Uhol: " << temp_angle << std::endl;
 
         if (fabs(temp_angle)<ANGL_DZ){
             //this->robot->move(0,0);
@@ -221,8 +236,6 @@ bool MovementControl::pidControlRotation(){
             if(cur_speed>speed_sat){
                 cur_speed=speed_sat;
             }
-
-            //this->robot->move((DWORD)cur_speed,-(DWORD)cur_iispeed);
             this->robRotateL(cur_speed);
             speed_up-=1;
         }

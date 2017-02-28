@@ -18,6 +18,7 @@ public:
     void updatePose(float pose_change, float angle_change);
     void setPosReach(bool pos_reach_);
     float degTorad(float data);
+    float radTodeg(float data);
 
     float robRotateR(DWORD speed);
     float robRotateL(DWORD speed);
