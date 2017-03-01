@@ -17,6 +17,7 @@ public:
     void moveToNewPose(float speed);
     void updatePose(float pose_change, float angle_change);
     void setPosReach(bool pos_reach_);
+    void setPosAngle(bool ang_reach_);
     float degTorad(float data);
     float radTodeg(float data);
 
@@ -34,6 +35,7 @@ private:
     //variablese
     float dt;
     bool pos_reach;
+    bool ang_reach;
 
     iRobotCreate *robot;
 

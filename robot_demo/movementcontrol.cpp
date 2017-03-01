@@ -6,6 +6,7 @@
 #define RAD_DEG M_PI/180
 #define DEG_RAD 180/M_PI
 /*Public methods*/
+
 MovementControl::MovementControl(float dt, iRobotCreate *robot)
 {
     this->dt = dt;
@@ -22,6 +23,7 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot)
     speed_uppos = 10;
     speed_sat=100;
     pos_reach=true;
+    ang_reach=true;
     dist_sum = 0;
 
 
@@ -108,7 +110,6 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
    /* switch(movement_state){
         case 1 :
-
             if (this->irob_current_pose.angle  <= 90)
                 angle = abs(this->irob_current_pose.angle  - 90);
             else if(this->irob_current_pose.angle  > 90 && this->irob_current_pose.angle  <= 180){
@@ -118,24 +119,18 @@ void MovementControl::updatePose(float pose_change, float angle_change){
                 angle = 90 + abs(this->irob_current_pose.angle);
             }
             dist_sum = dist_sum + pose_change;
-
-
             this->irob_current_pose.x = irob_start_pose.x + dist_sum * cos(degTorad(angle));
             this->irob_current_pose.y = irob_start_pose.y + dist_sum * sin(degTorad(angle));
             //std::cout << "istance: " << dist_sum << "start" << irob_start_pose.x << std::endl;
-
         break;
-
         case 2 :
             this->irob_current_pose.angle = this->irob_current_pose.angle + angle_change;
         break;
-
     default:{
         dist_sum =0;
         irob_start_pose.x = this->irob_current_pose.x;
         irob_start_pose.y = this->irob_current_pose.y;
     }
-
     }*/
 
     std::cout << "angle" << this->irob_current_pose.angle   << std::endl;
@@ -149,10 +144,12 @@ void MovementControl::moveToNewPose(float speed){
     if (new_pose.angle == -180)
         new_pose.angle = -179.8;
     this->irob_desired_pose = new_pose;
-    if(this->pidControlRotation()){
+    if(ang_reach){
         if(this->pidControlTranslation()){
             setPosReach(true);
         }
+    else{this->pidControlRotation();
+    }
 
     }
 }
@@ -209,7 +206,7 @@ bool MovementControl::pidControlRotation(){
     float temp_angle;
     float cur_speed;
 
-    if (pos_reach){return true;}
+    if (pos_reach || ang_reach){return true;}
     else{
 
         temp_angle=MovementControl::comuteAngle();
@@ -220,7 +217,9 @@ bool MovementControl::pidControlRotation(){
             //this->robot->move(0,0);
             this->robStop();
             speed_up=10;
+            setPosAngle(true);
             return true;
+
         }
 
         else if (temp_angle>0) {
@@ -252,11 +251,13 @@ bool MovementControl::pidControlTranslation(){
 
     float cur_speed;
     float temp_dist;
+    float temp_angle;
 
     if (pos_reach){return true;}
 
     else{
         temp_dist=comuteTranslation();
+        temp_angle=MovementControl::comuteAngle();
         std::cout << "DISTANCE: " << temp_dist << std::endl;
 
         if (fabs(temp_dist)<POS_DZ){
@@ -266,6 +267,9 @@ bool MovementControl::pidControlTranslation(){
             return true;
         }
         else{
+        if (temp_angle>(ANGL_DZ-3)){this->robRotateR(50); speed_uppos=10;}
+        else if (temp_angle<-(ANGL_DZ-3)){this->robRotateL(50); speed_uppos=10;}
+        else {
             cur_speed=temp_dist*P_REG/speed_uppos;
             if(cur_speed>speed_sat){
                 cur_speed=speed_sat;
@@ -274,6 +278,7 @@ bool MovementControl::pidControlTranslation(){
             //this->robot->move((DWORD)cur_speed,(DWORD)cur_speed);
             speed_uppos-=1;
         }
+    }
         if (speed_uppos<=1){
             speed_uppos=1;
         }
@@ -285,4 +290,6 @@ bool MovementControl::pidControlTranslation(){
 void MovementControl::setPosReach(bool pos_reach_){
     this->pos_reach = pos_reach_;
 }
-
+void MovementControl::setPosAngle(bool ang_reach_){
+    this->ang_reach = ang_reach_;
+}
