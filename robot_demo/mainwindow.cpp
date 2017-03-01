@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     irob_data = INFO_DATA();
+    robot = NULL;
 }
 
 MainWindow::~MainWindow()
@@ -63,30 +64,43 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked(/*void *ioPointer*/)
 {
+    if (robot != NULL){
 
-    /*robot_movemet->new_pose.x = currentWindow->ui->lineEdit->text().toInt();
-    robot_movemet->new_pose.y = currentWindow->ui->lineEdit_2->text().toInt();
-    robot_movemet->new_pose.angle = currentWindow->ui->lineEdit_3->text().toInt();*/
-    robot_movemet->new_pose.x = -50;
-    robot_movemet->new_pose.y = -50;
-    robot_movemet->new_pose.angle = 0;
-    robot_movemet->setPosReach(false);
-    //TODO OTESTOVAT ATAN 2 a upravit  ratanie anglu
-    /*new_pose.x = 0;
-    new_pose.y = 100;
-    new_pose.angle = 0;*/
-    /*robot_movemet->robRotateR(100);
-    usleep(2000*1000);
-    robot_movemet->robMove(200);
-    usleep(1000*1000);
-    robot_movemet->robStop();
-    */
+        robot_movemet->new_pose.x = ui->lineEdit->text().toInt();
+        robot_movemet->new_pose.y = ui->lineEdit_2->text().toInt();
+        /*robot_movemet->new_pose.angle = currentWindow->ui->lineEdit_3->text().toInt();
+        robot_movemet->new_pose.x = 100;
+        robot_movemet->new_pose.y = 100;*/
+        robot_movemet->new_pose.angle = 0;
+        robot_movemet->setPosReach(false);
+        robot_movemet->setPosAngle(false);
+        //TODO OTESTOVAT ATAN 2 a upravit  ratanie anglu
+        /*new_pose.x = 0;
+        new_pose.y = 100;
+        new_pose.angle = 0;*/
+        /*robot_movemet->robRotateR(100);
+        usleep(2000*1000);
+        robot_movemet->robMove(200);
+        usleep(1000*1000);
+        robot_movemet->robStop();
+        */
+
+    }
+    else{
+
+    cout << "connect the robot" << endl;
+    }
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
 
+    if (!robot){
+        cout << "connect the robot" << endl;
+    }
+    else{
     robot_movemet->setPosReach(true);
+    robot_movemet->setPosAngle(true);
     robot_movemet->robStop();
     /*new_pose.x = 0;
     new_pose.y = 100;
@@ -97,4 +111,5 @@ void MainWindow::on_pushButton_3_clicked()
     usleep(1000*1000);
     robot_movemet->robStop();
     */
+    }
 }

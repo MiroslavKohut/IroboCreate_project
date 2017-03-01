@@ -1,8 +1,9 @@
 #include "movementcontrol.h"
 #include <math.h>
 #define P_REG 2.5
-#define ANGL_DZ 5
-#define POS_DZ 15
+#define P_ANG 2.5
+#define ANGL_DZ 1
+#define POS_DZ 8
 #define RAD_DEG M_PI/180
 #define DEG_RAD 180/M_PI
 /*Public methods*/
@@ -70,7 +71,6 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
     float angle=0;
 
-
     //todo teting of remake switch statement to if statement
 
     if(movement_state == 1 || pose_change > 0){
@@ -135,7 +135,7 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
     std::cout << "angle" << this->irob_current_pose.angle   << std::endl;
 
-    //std::cout << "Suradnice X: " << this->irob_current_pose.x << " Suradnice Y" << this->irob_current_pose.y << std::endl;
+    std::cout << "Suradnice X: " << this->irob_current_pose.x << " Suradnice Y" << this->irob_current_pose.y << std::endl;
 
 }
 
@@ -148,11 +148,13 @@ void MovementControl::moveToNewPose(float speed){
         if(this->pidControlTranslation()){
             setPosReach(true);
         }
-    else{this->pidControlRotation();
+    }
+    else{
+         this->pidControlRotation();
     }
 
-    }
 }
+
 
 
 /*Private methods*/
@@ -206,8 +208,8 @@ bool MovementControl::pidControlRotation(){
     float temp_angle;
     float cur_speed;
 
-    if (pos_reach || ang_reach){return true;}
-    else{
+    if (pos_reach || ang_reach){  std::cout << "JELITO " << temp_angle << std::endl; return true;}
+    else{   std::cout << "prievidza " << temp_angle << std::endl;
 
         temp_angle=MovementControl::comuteAngle();
 
@@ -223,9 +225,12 @@ bool MovementControl::pidControlRotation(){
         }
 
         else if (temp_angle>0) {
-            cur_speed=fabs(temp_angle)*P_REG/speed_up;
-            if(cur_speed>speed_sat){
-                cur_speed=speed_sat;
+            cur_speed=fabs(temp_angle)*P_ANG/speed_up;
+            if(cur_speed>100){
+                cur_speed=100;
+            }
+            if(cur_speed<50){
+                cur_speed=50;
             }
             //this->robot->move(-(DWORD)cur_speed,(DWORD)cur_speed);
             this->robRotateR(cur_speed);
@@ -233,9 +238,12 @@ bool MovementControl::pidControlRotation(){
         }
 
         else if (temp_angle<0) {
-            cur_speed=fabs(temp_angle)*P_REG/speed_up;
-            if(cur_speed>speed_sat){
-                cur_speed=speed_sat;
+            cur_speed=fabs(temp_angle)*P_ANG/speed_up;
+            if(cur_speed>100){
+                cur_speed=100;
+            }
+            if(cur_speed<50){
+                cur_speed=50;
             }
             this->robRotateL(cur_speed);
             speed_up-=1;
@@ -267,9 +275,9 @@ bool MovementControl::pidControlTranslation(){
             return true;
         }
         else{
-        if (temp_angle>(ANGL_DZ-3)){this->robRotateR(50); speed_uppos=10;}
-        else if (temp_angle<-(ANGL_DZ-3)){this->robRotateL(50); speed_uppos=10;}
-        else {
+        if (temp_angle>(ANGL_DZ)){this->robRotateR(15); speed_uppos=10; std::cout << "vamos doprava "  << std::endl;}
+        else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=10;std::cout << "vamos dolava "  << std::endl;}
+        else {std::cout << "rapido dopredu "  << std::endl;
             cur_speed=temp_dist*P_REG/speed_uppos;
             if(cur_speed>speed_sat){
                 cur_speed=speed_sat;
