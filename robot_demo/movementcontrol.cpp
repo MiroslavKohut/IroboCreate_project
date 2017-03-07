@@ -20,8 +20,8 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot)
 
     movement_state = 0; //1 movement 2 rotation
 
-    speed_up=10;
-    speed_uppos = 10;
+    speed_up=0;
+    speed_uppos = 0;
     speed_sat=100;
     pos_reach=true;
     ang_reach=true;
@@ -218,14 +218,18 @@ bool MovementControl::pidControlRotation(){
         if (fabs(temp_angle)<ANGL_DZ){
             //this->robot->move(0,0);
             this->robStop();
-            speed_up=10;
+
             setPosAngle(true);
             return true;
 
         }
 
         else if (temp_angle>0) {
-            cur_speed=fabs(temp_angle)*P_ANG/speed_up;
+            cur_speed=fabs(temp_angle)*P_ANG;
+            if (cur_speed-speed_up>25){
+                cur_speed=speed_up+25;}
+                speed_up=cur_speed;
+
             if(cur_speed>100){
                 cur_speed=100;
             }
@@ -234,11 +238,15 @@ bool MovementControl::pidControlRotation(){
             }
             //this->robot->move(-(DWORD)cur_speed,(DWORD)cur_speed);
             this->robRotateR(cur_speed);
-            speed_up-=1;
+
         }
 
         else if (temp_angle<0) {
-            cur_speed=fabs(temp_angle)*P_ANG/speed_up;
+            cur_speed=fabs(temp_angle)*P_ANG;
+            if (cur_speed-speed_up>25){
+                cur_speed=speed_up+25;}
+                speed_up=cur_speed;
+
             if(cur_speed>100){
                 cur_speed=100;
             }
@@ -246,15 +254,12 @@ bool MovementControl::pidControlRotation(){
                 cur_speed=50;
             }
             this->robRotateL(cur_speed);
-            speed_up-=1;
+
         }
-        if (speed_up<=1){
-            speed_up=1;
-        }
+
         return false;
     }
 }
-
 bool MovementControl::pidControlTranslation(){
 
     float cur_speed;
@@ -271,25 +276,27 @@ bool MovementControl::pidControlTranslation(){
         if (fabs(temp_dist)<POS_DZ){
             //this->robot->move(0,0);
             this->robStop();
-            speed_uppos=10;
+
             return true;
         }
         else{
         if (temp_angle>(ANGL_DZ)){this->robRotateR(15); speed_uppos=10; std::cout << "vamos doprava "  << std::endl;}
         else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=10;std::cout << "vamos dolava "  << std::endl;}
         else {std::cout << "rapido dopredu "  << std::endl;
-            cur_speed=temp_dist*P_REG/speed_uppos;
+            cur_speed=temp_dist*P_REG;
+            if (cur_speed-speed_uppos>25){
+                cur_speed=speed_uppos+25;}
+                speed_uppos=cur_speed;
+
             if(cur_speed>speed_sat){
                 cur_speed=speed_sat;
             }
             this->robMove(cur_speed);
             //this->robot->move((DWORD)cur_speed,(DWORD)cur_speed);
-            speed_uppos-=1;
+
         }
     }
-        if (speed_uppos<=1){
-            speed_uppos=1;
-        }
+
         return false;
 
     }
