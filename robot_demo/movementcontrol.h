@@ -36,7 +36,8 @@ private:
     float dt;
     bool pos_reach;
     bool ang_reach;
-
+    float target_angle;
+    float target_dist;
     iRobotCreate *robot;
 
     POSITION irob_current_pose;

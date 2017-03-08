@@ -1,9 +1,9 @@
 #include "movementcontrol.h"
 #include <math.h>
 #define P_REG 2.5
-#define P_ANG 1.5
+#define P_ANG 0.25
 #define ANGL_DZ 1
-#define POS_DZ 8
+#define POS_DZ 50
 #define RAD_DEG M_PI/180
 #define DEG_RAD 180/M_PI
 /*Public methods*/
@@ -22,11 +22,11 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot)
 
     speed_up=0;
     speed_uppos = 0;
-    speed_sat=100;
+    speed_sat=300;
     pos_reach=true;
     ang_reach=true;
     dist_sum = 0;
-
+    target_angle=0;
 
 }
 
@@ -230,11 +230,11 @@ bool MovementControl::pidControlRotation(){
                 cur_speed=speed_up+25;}
 
 
-            if(cur_speed>250){
-                cur_speed=250;
+            if(cur_speed>100){
+                cur_speed=100;
             }
-            if(cur_speed<20){
-                cur_speed=20;
+            if(cur_speed<10){
+                cur_speed=10;
             }
              speed_up=cur_speed;
             //this->robot->move(-(DWORD)cur_speed,(DWORD)cur_speed);
@@ -258,7 +258,7 @@ bool MovementControl::pidControlRotation(){
             this->robRotateL(cur_speed);
 
         }
-
+       //target_angle=this->irob_current_pose.angle;
         return false;
     }
 }
@@ -268,11 +268,14 @@ bool MovementControl::pidControlTranslation(){
     float temp_dist;
     float temp_angle;
 
-    if (pos_reach){return true;}
+    temp_dist=comuteTranslation();
+    temp_angle=MovementControl::comuteAngle();
 
+    if (pos_reach){
+        return true;
+    }
     else{
-        temp_dist=comuteTranslation();
-        temp_angle=MovementControl::comuteAngle();
+
         std::cout << "DISTANCE: " << temp_dist << std::endl;
 
         if (fabs(temp_dist)<POS_DZ){
@@ -282,23 +285,23 @@ bool MovementControl::pidControlTranslation(){
             return true;
         }
         else{
-        if (temp_angle>(ANGL_DZ)){this->robRotateR(15); speed_uppos=15; std::cout << "vamos doprava "  << std::endl;}
-        else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=15;std::cout << "vamos dolava "  << std::endl;}
-        else {std::cout << "rapido dopredu "  << std::endl;
-            cur_speed=temp_dist*P_REG;
-            if (cur_speed-speed_uppos>25){
-                cur_speed=speed_uppos+25;}
+           /*if (temp_angle>(ANGL_DZ)){this->robRotateR(15); speed_uppos=15;  std::cout << "TEMP ANGLE R" << temp_angle << std::endl;}
+            else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=15;  std::cout << "TEMP ANGLE L" << temp_angle << std::endl;}
+            else {*/
+                cur_speed=temp_dist*P_REG;
+                if (cur_speed-speed_uppos>25){
+                    cur_speed=speed_uppos+25;}
 
 
-            if(cur_speed>speed_sat){
-                cur_speed=speed_sat;
-            }
+                if(cur_speed>speed_sat){
+                    cur_speed=speed_sat;
+                }
              speed_uppos=cur_speed;
             this->robMove(cur_speed);
             //this->robot->move((DWORD)cur_speed,(DWORD)cur_speed);
 
+            //}
         }
-    }
 
         return false;
 
