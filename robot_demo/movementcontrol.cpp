@@ -1,7 +1,7 @@
 #include "movementcontrol.h"
 #include <math.h>
 #define P_REG 2.5
-#define P_ANG 2.5
+#define P_ANG 1.5
 #define ANGL_DZ 1
 #define POS_DZ 8
 #define RAD_DEG M_PI/180
@@ -78,7 +78,7 @@ void MovementControl::updatePose(float pose_change, float angle_change){
         if (this->irob_current_pose.angle  <= 90)
             angle = abs(this->irob_current_pose.angle  - 90);
         else if(this->irob_current_pose.angle  > 90 && this->irob_current_pose.angle  <= 180){
-            angle = 450 - angle_change ;
+            angle = 450 - abs(this->irob_current_pose.angle);
         }
         else if(this->irob_current_pose.angle  < 0 && this->irob_current_pose.angle  >= -180){
             angle = 90 + abs(this->irob_current_pose.angle);
@@ -228,14 +228,15 @@ bool MovementControl::pidControlRotation(){
             cur_speed=fabs(temp_angle)*P_ANG;
             if (cur_speed-speed_up>25){
                 cur_speed=speed_up+25;}
-                speed_up=cur_speed;
 
-            if(cur_speed>100){
-                cur_speed=100;
+
+            if(cur_speed>250){
+                cur_speed=250;
             }
-            if(cur_speed<50){
-                cur_speed=50;
+            if(cur_speed<20){
+                cur_speed=20;
             }
+             speed_up=cur_speed;
             //this->robot->move(-(DWORD)cur_speed,(DWORD)cur_speed);
             this->robRotateR(cur_speed);
 
@@ -245,14 +246,15 @@ bool MovementControl::pidControlRotation(){
             cur_speed=fabs(temp_angle)*P_ANG;
             if (cur_speed-speed_up>25){
                 cur_speed=speed_up+25;}
-                speed_up=cur_speed;
 
-            if(cur_speed>100){
-                cur_speed=100;
+
+            if(cur_speed>250){
+                cur_speed=250;
             }
-            if(cur_speed<50){
-                cur_speed=50;
+            if(cur_speed<20){
+                cur_speed=20;
             }
+            speed_up=cur_speed;
             this->robRotateL(cur_speed);
 
         }
@@ -280,17 +282,18 @@ bool MovementControl::pidControlTranslation(){
             return true;
         }
         else{
-        if (temp_angle>(ANGL_DZ)){this->robRotateR(15); speed_uppos=10; std::cout << "vamos doprava "  << std::endl;}
-        else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=10;std::cout << "vamos dolava "  << std::endl;}
+        if (temp_angle>(ANGL_DZ)){this->robRotateR(15); speed_uppos=15; std::cout << "vamos doprava "  << std::endl;}
+        else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=15;std::cout << "vamos dolava "  << std::endl;}
         else {std::cout << "rapido dopredu "  << std::endl;
             cur_speed=temp_dist*P_REG;
             if (cur_speed-speed_uppos>25){
                 cur_speed=speed_uppos+25;}
-                speed_uppos=cur_speed;
+
 
             if(cur_speed>speed_sat){
                 cur_speed=speed_sat;
             }
+             speed_uppos=cur_speed;
             this->robMove(cur_speed);
             //this->robot->move((DWORD)cur_speed,(DWORD)cur_speed);
 
