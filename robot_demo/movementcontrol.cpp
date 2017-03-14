@@ -1,12 +1,12 @@
 #include "movementcontrol.h"
 #include <math.h>
-#define P_REG 1.5
+#define P_REG 2.5
 #define P_ANG 2.0
 #define ANGL_DZ 1
-#define POS_DZ 60
+#define POS_DZ 50
 #define RAD_DEG M_PI/180
 #define DEG_RAD 180/M_PI
-#define ANG_SAT_UP 400
+#define ANG_SAT_UP 300
 #define ANG_SAT_DOWN 25
 /*Public methods*/
 
@@ -24,7 +24,7 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot)
 
     speed_up=0;
     speed_uppos = 0;
-    speed_sat=400;
+    speed_sat=300;
     pos_reach=true;
     ang_reach=true;
     dist_sum = 0;
@@ -206,8 +206,8 @@ bool MovementControl::pidControlRotation(){
 
         else if (temp_angle>0) {
             cur_speed=fabs(temp_angle)*P_ANG;
-            if (cur_speed-speed_up>40){
-                cur_speed=speed_up+40;}
+            if (cur_speed-speed_up>25){
+                cur_speed=speed_up+25;}
 
 
             if(cur_speed>ANG_SAT_UP){
@@ -224,8 +224,8 @@ bool MovementControl::pidControlRotation(){
 
         else if (temp_angle<0) {
             cur_speed=fabs(temp_angle)*P_ANG;
-            if (cur_speed-speed_up>40){
-                cur_speed=speed_up+40;}
+            if (cur_speed-speed_up>25){
+                cur_speed=speed_up+25;}
 
 
             if(cur_speed>ANG_SAT_UP){
@@ -272,8 +272,8 @@ bool MovementControl::pidControlTranslation(){
             else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=15;  std::cout << "TEMP ANGLE L" << temp_angle << std::endl;}
             else {*/
                 cur_speed=temp_dist*P_REG;
-                if (cur_speed-speed_uppos>50){
-                    cur_speed=speed_uppos+50;}
+                if (cur_speed-speed_uppos>35){
+                    cur_speed=speed_uppos+35;}
 
 
                 if(cur_speed>speed_sat){
