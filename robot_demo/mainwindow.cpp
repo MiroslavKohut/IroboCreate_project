@@ -54,12 +54,14 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
 
 void MainWindow::on_pushButton_clicked()
 {
-    robot= new iRobotCreate();
-    robot->ConnectToPort("/dev/robot",this);
-    connect( this, SIGNAL( showMB() ), this, SLOT( showMessageBox() ), Qt::BlockingQueuedConnection );
-    robot->dataProcess(this,&demoCallback);
+    if(robot == NULL){
+        robot= new iRobotCreate();
+        robot->ConnectToPort("/dev/robot",this);
+        connect( this, SIGNAL( showMB() ), this, SLOT( showMessageBox() ), Qt::BlockingQueuedConnection );
+        robot->dataProcess(this,&demoCallback);
 
-    robot_movemet = new MovementControl(TIME_STAMP_S,robot);
+        robot_movemet = new MovementControl(TIME_STAMP_S,robot);
+    }
 }
 
 void MainWindow::on_pushButton_2_clicked(/*void *ioPointer*/)

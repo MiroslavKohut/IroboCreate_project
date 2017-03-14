@@ -1,12 +1,12 @@
 #include "movementcontrol.h"
 #include <math.h>
-#define P_REG 2.5
-#define P_ANG 0.25
+#define P_REG 1.5
+#define P_ANG 2.0
 #define ANGL_DZ 1
-#define POS_DZ 50
+#define POS_DZ 60
 #define RAD_DEG M_PI/180
 #define DEG_RAD 180/M_PI
-#define ANG_SAT_UP 300
+#define ANG_SAT_UP 400
 #define ANG_SAT_DOWN 25
 /*Public methods*/
 
@@ -24,7 +24,7 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot)
 
     speed_up=0;
     speed_uppos = 0;
-    speed_sat=300;
+    speed_sat=400;
     pos_reach=true;
     ang_reach=true;
     dist_sum = 0;
@@ -107,34 +107,6 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
     }
 
-
-
-
-   /* switch(movement_state){
-        case 1 :
-            if (this->irob_current_pose.angle  <= 90)
-                angle = abs(this->irob_current_pose.angle  - 90);
-            else if(this->irob_current_pose.angle  > 90 && this->irob_current_pose.angle  <= 180){
-                angle = 450 - angle_change ;
-            }
-            else if(this->irob_current_pose.angle  < 0 && this->irob_current_pose.angle  >= -180){
-                angle = 90 + abs(this->irob_current_pose.angle);
-            }
-            dist_sum = dist_sum + pose_change;
-            this->irob_current_pose.x = irob_start_pose.x + dist_sum * cos(degTorad(angle));
-            this->irob_current_pose.y = irob_start_pose.y + dist_sum * sin(degTorad(angle));
-            //std::cout << "istance: " << dist_sum << "start" << irob_start_pose.x << std::endl;
-        break;
-        case 2 :
-            this->irob_current_pose.angle = this->irob_current_pose.angle + angle_change;
-        break;
-    default:{
-        dist_sum =0;
-        irob_start_pose.x = this->irob_current_pose.x;
-        irob_start_pose.y = this->irob_current_pose.y;
-    }
-    }*/
-
     std::cout << "angle" << this->irob_current_pose.angle   << std::endl;
 
     std::cout << "Suradnice X: " << this->irob_current_pose.x << " Suradnice Y" << this->irob_current_pose.y << std::endl;
@@ -143,8 +115,8 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
 void MovementControl::moveToNewPose(float speed){
 
-    if (new_pose.angle == -180)
-        new_pose.angle = -179.8;
+    /*if (new_pose.angle == -180)
+        new_pose.angle = -179.8; TODO dorobit*/
     this->irob_desired_pose = new_pose;
     if(ang_reach){
         if(this->pidControlTranslation()){
@@ -173,13 +145,20 @@ float MovementControl::comuteAngle(){
    else if (y >= 0){
        angle_from_y = 90 - radTodeg(atan2(y,x));
 
-       std::cout << "ATAN: " << radTodeg(atan2(y,x))<< std::endl;
+       //std::cout << "ATAN: " << radTodeg(atan2(y,x))<< std::endl;
    }
    else if (y < 0 && x >= 0){
        angle_from_y = fabs(-90 + radTodeg(atan2(y,x)));
    }
    else if(y < 0 && x < 0){
        angle_from_y = - 90 - (180 + radTodeg(atan2(y,x)));
+   }
+
+   if (angle_from_y > 180){
+       angle_from_y = -360+ angle_from_y;
+   }
+   else if(angle_from_y < -180){
+       angle_from_y = 360 + angle_from_y;
    }
 
    if (irob_current_pose.angle  == 0)
@@ -211,13 +190,12 @@ bool MovementControl::pidControlRotation(){
     float cur_speed;
 
     if (pos_reach || ang_reach){  std::cout << "JELITO " << temp_angle << std::endl; return true;}
-    else{   std::cout << "prievidza " << temp_angle << std::endl;
-
+    else{
         temp_angle=MovementControl::comuteAngle();
 
         std::cout << "TEMP ANGLE " << temp_angle << std::endl;
 
-        if (fabs(temp_angle)<ANGL_DZ){
+        if (fabs(temp_angle)<=ANGL_DZ){
             //this->robot->move(0,0);
             this->robStop();
 
@@ -228,8 +206,8 @@ bool MovementControl::pidControlRotation(){
 
         else if (temp_angle>0) {
             cur_speed=fabs(temp_angle)*P_ANG;
-            if (cur_speed-speed_up>25){
-                cur_speed=speed_up+25;}
+            if (cur_speed-speed_up>40){
+                cur_speed=speed_up+40;}
 
 
             if(cur_speed>ANG_SAT_UP){
@@ -246,8 +224,8 @@ bool MovementControl::pidControlRotation(){
 
         else if (temp_angle<0) {
             cur_speed=fabs(temp_angle)*P_ANG;
-            if (cur_speed-speed_up>25){
-                cur_speed=speed_up+25;}
+            if (cur_speed-speed_up>40){
+                cur_speed=speed_up+40;}
 
 
             if(cur_speed>ANG_SAT_UP){
@@ -287,12 +265,15 @@ bool MovementControl::pidControlTranslation(){
             return true;
         }
         else{
+            if (fabs(temp_angle)>=ANGL_DZ && (temp_dist > 1300)){
+                setPosAngle(false);
+            }
            /*if (temp_angle>(ANGL_DZ)){this->robRotateR(15); speed_uppos=15;  std::cout << "TEMP ANGLE R" << temp_angle << std::endl;}
             else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=15;  std::cout << "TEMP ANGLE L" << temp_angle << std::endl;}
             else {*/
                 cur_speed=temp_dist*P_REG;
-                if (cur_speed-speed_uppos>25){
-                    cur_speed=speed_uppos+25;}
+                if (cur_speed-speed_uppos>50){
+                    cur_speed=speed_uppos+50;}
 
 
                 if(cur_speed>speed_sat){
