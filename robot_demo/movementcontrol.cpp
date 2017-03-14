@@ -6,6 +6,8 @@
 #define POS_DZ 50
 #define RAD_DEG M_PI/180
 #define DEG_RAD 180/M_PI
+#define ANG_SAT_UP 300
+#define ANG_SAT_DOWN 25
 /*Public methods*/
 
 MovementControl::MovementControl(float dt, iRobotCreate *robot)
@@ -230,11 +232,11 @@ bool MovementControl::pidControlRotation(){
                 cur_speed=speed_up+25;}
 
 
-            if(cur_speed>100){
-                cur_speed=100;
+            if(cur_speed>ANG_SAT_UP){
+                cur_speed=ANG_SAT_UP;
             }
-            if(cur_speed<10){
-                cur_speed=10;
+            if(cur_speed<ANG_SAT_DOWN){
+                cur_speed=ANG_SAT_DOWN;
             }
              speed_up=cur_speed;
             //this->robot->move(-(DWORD)cur_speed,(DWORD)cur_speed);
@@ -248,11 +250,11 @@ bool MovementControl::pidControlRotation(){
                 cur_speed=speed_up+25;}
 
 
-            if(cur_speed>250){
-                cur_speed=250;
+            if(cur_speed>ANG_SAT_UP){
+                cur_speed=ANG_SAT_UP;
             }
-            if(cur_speed<20){
-                cur_speed=20;
+            if(cur_speed<ANG_SAT_DOWN){
+                cur_speed=ANG_SAT_DOWN;
             }
             speed_up=cur_speed;
             this->robRotateL(cur_speed);
