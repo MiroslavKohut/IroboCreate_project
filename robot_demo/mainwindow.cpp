@@ -64,7 +64,7 @@ void MainWindow::on_pushButton_clicked()
     }
 }
 
-void MainWindow::on_pushButton_2_clicked(/*void *ioPointer*/)
+void MainWindow::on_pushButton_2_clicked()
 {
     if (robot != NULL){
 
@@ -95,10 +95,20 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_4_clicked()
 {
-
+    if (!robot){
+        cout << "connect the robot" << endl;
+    }
+    else{
+        robot_movemet->startMapping();
+    }
 }
 
 void MainWindow::on_pushButton_5_clicked()
 {
-
+    if (!robot){
+        cout << "connect the robot" << endl;
+    }
+    else{
+        robot_movemet->stopMapping();
+    }
 }

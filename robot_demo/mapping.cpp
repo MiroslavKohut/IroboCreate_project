@@ -57,7 +57,8 @@ int Mapping::getPoints(){
     while(getMappingStatus()){
 
         LaserMeasurement measure=lidar.getMeasurement();
-
+        pthread_mutex_lock (&current_pose_lock);
+        pthread_mutex_unlock (&current_pose_lock);
         points.begin();
         for(int i=0; i<measure.numberOfScans;i++)
         {
@@ -66,13 +67,12 @@ int Mapping::getPoints(){
             else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
                 angle = 450 - measure.Data[i].scanAngle;
             }
-
             point.x = cos(angle)*measure.Data[i].scanDistance;
             point.y = sin(angle)*measure.Data[i].scanDistance;
             points.push_back(point);
         }
-
-    usleep(200000);
+    std::cout << "zmapoval som" << std::endl;
+    usleep(1000000);
     }
     return 0;
 

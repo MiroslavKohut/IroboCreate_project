@@ -41,12 +41,14 @@ private:
     dotstr.sum += mysum;
     pthread_mutex_unlock (&mutexsum);*/
 
-protected:
+public:
 
     int getPoints();
     bool checkMovement();
     void startMapping();
     void stopMapping();
+
+    pthread_mutex_t current_pose_lock;
 
 private:
 

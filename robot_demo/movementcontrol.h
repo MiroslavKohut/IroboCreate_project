@@ -2,6 +2,7 @@
 #define MOVEMENTCONTROL_H
 
 #include "irobotcreate.h"
+#include "mapping.h"
 
 struct POSITION{
     float x;
@@ -9,7 +10,7 @@ struct POSITION{
     float angle;
 };
 
-class MovementControl
+class MovementControl :public Mapping
 {
 public:
     MovementControl(float dt,iRobotCreate *robot);

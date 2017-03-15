@@ -1,4 +1,5 @@
 #include "movementcontrol.h"
+#include <pthread.h>
 #include <math.h>
 #define P_REG 2.5
 #define P_ANG 2.0
@@ -10,8 +11,8 @@
 #define ANG_SAT_DOWN 25
 /*Public methods*/
 
-MovementControl::MovementControl(float dt, iRobotCreate *robot)
-{
+MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping() {
+
     this->dt = dt;
     irob_current_pose = POSITION();
     irob_desired_pose = POSITION();
@@ -76,7 +77,7 @@ void MovementControl::updatePose(float pose_change, float angle_change){
     float angle=0;
 
     //todo teting of remake switch statement to if statement
-
+    pthread_mutex_lock (&current_pose_lock);
     if(movement_state == 1 || pose_change > 0){
 
         if (this->irob_current_pose.angle  <= 90)
@@ -110,9 +111,8 @@ void MovementControl::updatePose(float pose_change, float angle_change){
     }
 
     std::cout << "angle" << this->irob_current_pose.angle   << std::endl;
-
     std::cout << "Suradnice X: " << this->irob_current_pose.x << " Suradnice Y" << this->irob_current_pose.y << std::endl;
-
+    pthread_mutex_unlock (&current_pose_lock);
 }
 
 void MovementControl::moveToNewPose(float speed){
