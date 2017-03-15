@@ -83,7 +83,7 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>120</y>
+      <y>200</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -102,7 +102,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>0</string>
+     <string>-500</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_2">
@@ -115,7 +115,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>0</string>
+     <string>500</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_3">
@@ -168,6 +168,32 @@
     </property>
     <property name="text">
      <string>angle</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_4">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>120</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>start_mapping</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_5">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>160</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>stop_mapping</string>
     </property>
    </widget>
   </widget>

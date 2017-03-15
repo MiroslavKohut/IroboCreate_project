@@ -27,16 +27,16 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
 
   //  currentWindow->update();
     QString vystup = "Neplatny udaj.";
-    QString vzdialenost= "Neplatny udaj.";
-    QString uhol = "Neplatny udaj.";
+    //QString vzdialenost= "Neplatny udaj.";
+    //QString uhol = "Neplatny udaj.";
 
     vystup = QString::number(inputData.Voltage);
 
-    currentWindow->irob_data.prejdena_vzdialenost =  currentWindow->irob_data.prejdena_vzdialenost + inputData.Distance;
-    currentWindow->irob_data.uhol_otocenia =  currentWindow->irob_data.uhol_otocenia -inputData.Angle;
+    //currentWindow->irob_data.prejdena_vzdialenost =  currentWindow->irob_data.prejdena_vzdialenost + inputData.Distance;
+    //currentWindow->irob_data.uhol_otocenia =  currentWindow->irob_data.uhol_otocenia -inputData.Angle;
 
-    uhol = QString::number(currentWindow->irob_data.uhol_otocenia);
-    vzdialenost = QString::number(currentWindow->irob_data.prejdena_vzdialenost);
+    //uhol = QString::number(currentWindow->irob_data.uhol_otocenia);
+    //vzdialenost = QString::number(currentWindow->irob_data.prejdena_vzdialenost);
 
 
     currentWindow->robot_movemet->updatePose(inputData.Distance,-inputData.Angle); //angle opacny z dovodu opacneho naprogramovania rotacii
@@ -44,10 +44,10 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
 
 
     //VYPIS
-
-    currentWindow->ui->label->setText(QString::number(inputData.Voltage));
-    currentWindow->ui->distance->setText(vzdialenost);
-    currentWindow->ui->angle->setText(uhol); 
+    vystup =QString::number(inputData.Voltage);
+    currentWindow->ui->label->setText(vystup);
+    //currentWindow->ui->distance->setText(vzdialenost);
+    //currentWindow->ui->angle->setText(uhol);
 
 }
 
@@ -70,23 +70,9 @@ void MainWindow::on_pushButton_2_clicked(/*void *ioPointer*/)
 
         robot_movemet->new_pose.x = ui->lineEdit->text().toInt();
         robot_movemet->new_pose.y = ui->lineEdit_2->text().toInt();
-        /*robot_movemet->new_pose.angle = currentWindow->ui->lineEdit_3->text().toInt();
-        robot_movemet->new_pose.x = 100;
-        robot_movemet->new_pose.y = 100;*/
         robot_movemet->new_pose.angle = 0;
         robot_movemet->setPosReach(false);
         robot_movemet->setPosAngle(false);
-        //TODO OTESTOVAT ATAN 2 a upravit  ratanie anglu
-        /*new_pose.x = 0;
-        new_pose.y = 100;
-        new_pose.angle = 0;*/
-        /*robot_movemet->robRotateR(100);
-        usleep(2000*1000);
-        robot_movemet->robMove(200);
-        usleep(1000*1000);
-        robot_movemet->robStop();
-        */
-
     }
     else{
 
@@ -104,14 +90,15 @@ void MainWindow::on_pushButton_3_clicked()
     robot_movemet->setPosReach(true);
     robot_movemet->setPosAngle(true);
     robot_movemet->robStop();
-    /*new_pose.x = 0;
-    new_pose.y = 100;
-    new_pose.angle = 0;*/
-    /*robot_movemet->robRotateR(100);
-    usleep(2000*1000);
-    robot_movemet->robMove(200);
-    usleep(1000*1000);
-    robot_movemet->robStop();
-    */
     }
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+
+}
+
+void MainWindow::on_pushButton_5_clicked()
+{
+
 }

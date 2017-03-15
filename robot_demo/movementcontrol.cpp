@@ -21,6 +21,8 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot)
     this->robot = robot;
 
     movement_state = 0; //1 movement 2 rotation
+    this->irob_current_pose.x = -500;
+    this->irob_current_pose.y = 500;
 
     speed_up=0;
     speed_uppos = 0;
@@ -101,7 +103,7 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
     if(movement_state == 0 && pose_change == 0 && angle_change == 0){
 
-        dist_sum =0;
+        dist_sum = 0;
         irob_start_pose.x = this->irob_current_pose.x;
         irob_start_pose.y = this->irob_current_pose.y;
 
@@ -115,8 +117,6 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
 void MovementControl::moveToNewPose(float speed){
 
-    /*if (new_pose.angle == -180)
-        new_pose.angle = -179.8; TODO dorobit*/
     this->irob_desired_pose = new_pose;
     if(ang_reach){
         if(this->pidControlTranslation()){
@@ -193,7 +193,7 @@ bool MovementControl::pidControlRotation(){
     else{
         temp_angle=MovementControl::comuteAngle();
 
-        std::cout << "TEMP ANGLE " << temp_angle << std::endl;
+        //std::cout << "TEMP ANGLE " << temp_angle << std::endl;
 
         if (fabs(temp_angle)<=ANGL_DZ){
             //this->robot->move(0,0);

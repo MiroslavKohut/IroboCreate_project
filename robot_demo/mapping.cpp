@@ -2,15 +2,14 @@
 #include <math.h>
 #include "rplidar.h"
 
+//50cm x 50cm start point // 500cm x 500cm area // 5cm x 5 cm square //
+
 Mapping::Mapping()
 {
     lidar.connect("/dev/laser");
     lidar.enable();
     lidar.start();
     mapping_run = false;
-    this->closest_distance = 0;
-    this->closest_point = POINT();
-
 }
 
 Mapping::~Mapping()
@@ -73,6 +72,7 @@ int Mapping::getPoints(){
             points.push_back(point);
         }
 
+    usleep(200000);
     }
     return 0;
 
