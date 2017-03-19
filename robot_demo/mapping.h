@@ -6,13 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <pthread.h>
-
-
-struct POINT{
-    float x;
-    float y;
-};
-
+#include "structures.h"
 class Mapping
 {
 public:
@@ -49,6 +43,9 @@ public:
     void stopMapping();
 
     pthread_mutex_t current_pose_lock;
+
+protected:
+    POSITION irob_current_mapping_pose;
 
 private:
 

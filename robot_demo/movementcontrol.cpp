@@ -7,6 +7,8 @@
 #define POS_DZ 50
 #define RAD_DEG M_PI/180
 #define DEG_RAD 180/M_PI
+
+#define SPEED_SAT_UP 300
 #define ANG_SAT_UP 300
 #define ANG_SAT_DOWN 25
 /*Public methods*/
@@ -17,6 +19,7 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping() {
     irob_current_pose = POSITION();
     irob_desired_pose = POSITION();
     irob_start_pose = POSITION();
+
     new_pose = POSITION();
 
     this->robot = robot;
@@ -26,8 +29,6 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping() {
     this->irob_current_pose.y = 500;
 
     speed_up=0;
-    speed_uppos = 0;
-    speed_sat=300;
     pos_reach=true;
     ang_reach=true;
     dist_sum = 0;
@@ -77,7 +78,6 @@ void MovementControl::updatePose(float pose_change, float angle_change){
     float angle=0;
 
     //todo teting of remake switch statement to if statement
-    pthread_mutex_lock (&current_pose_lock);
     if(movement_state == 1 || pose_change > 0){
 
         if (this->irob_current_pose.angle  <= 90)
@@ -112,6 +112,12 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
     std::cout << "angle" << this->irob_current_pose.angle   << std::endl;
     std::cout << "Suradnice X: " << this->irob_current_pose.x << " Suradnice Y" << this->irob_current_pose.y << std::endl;
+
+    // poslatie pozicie do podedenej classy
+    pthread_mutex_lock (&current_pose_lock);
+
+    irob_current_mapping_pose = irob_current_pose;
+
     pthread_mutex_unlock (&current_pose_lock);
 }
 
@@ -276,8 +282,8 @@ bool MovementControl::pidControlTranslation(){
                     cur_speed=speed_uppos+35;}
 
 
-                if(cur_speed>speed_sat){
-                    cur_speed=speed_sat;
+                if(cur_speed>SPEED_SAT_UP){
+                    cur_speed=SPEED_SAT_UP;
                 }
              speed_uppos=cur_speed;
             this->robMove(cur_speed);

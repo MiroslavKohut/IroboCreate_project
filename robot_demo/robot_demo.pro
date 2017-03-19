@@ -23,6 +23,7 @@ HEADERS  += mainwindow.h \
     irobotcreate.h \
     movementcontrol.h \
     mapping.h \
-    rplidar.h
+    rplidar.h \
+    structures.h
 
 FORMS    += mainwindow.ui

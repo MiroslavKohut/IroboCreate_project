@@ -3,12 +3,8 @@
 
 #include "irobotcreate.h"
 #include "mapping.h"
+#include "structures.h"
 
-struct POSITION{
-    float x;
-    float y;
-    float angle;
-};
 
 class MovementControl :public Mapping
 {
@@ -46,7 +42,6 @@ private:
     POSITION irob_start_pose;
 
     DWORD speed_up;
-    float speed_sat;
     DWORD speed_uppos;
 
     u_int8_t movement_state;

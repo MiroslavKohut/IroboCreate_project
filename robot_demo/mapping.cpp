@@ -9,6 +9,7 @@ Mapping::Mapping()
     lidar.connect("/dev/laser");
     lidar.enable();
     lidar.start();
+    irob_current_mapping_pose = POSITION();
     mapping_run = false;
 }
 
@@ -53,11 +54,12 @@ int Mapping::getPoints(){
     
     float angle=0;
     POINT point;
-
+    POSITION current_pose;
     while(getMappingStatus()){
 
         LaserMeasurement measure=lidar.getMeasurement();
         pthread_mutex_lock (&current_pose_lock);
+        current_pose = irob_current_mapping_pose;
         pthread_mutex_unlock (&current_pose_lock);
         points.begin();
         for(int i=0; i<measure.numberOfScans;i++)
