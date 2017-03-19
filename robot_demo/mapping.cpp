@@ -2,7 +2,10 @@
 #include <math.h>
 #include "rplidar.h"
 
-//50cm x 50cm start point // 500cm x 500cm area // 5cm x 5 cm square //
+#define MAP_WIDTH 60
+#define MAP_HIGHT 60
+
+//50cm x 50cm start point // 600cm x 600cm area // 10cm x 10cm square // 60*60 array
 
 Mapping::Mapping()
 {
@@ -10,6 +13,7 @@ Mapping::Mapping()
     lidar.enable();
     lidar.start();
     irob_current_mapping_pose = POSITION();
+    map = std::vector<std::vector<uint8_t>>(MAP_WIDTH, std::vector<uint8_t>(MAP_HIGHT));
     mapping_run = false;
 }
 
@@ -58,9 +62,11 @@ int Mapping::getPoints(){
     while(getMappingStatus()){
 
         LaserMeasurement measure=lidar.getMeasurement();
+
         pthread_mutex_lock (&current_pose_lock);
         current_pose = irob_current_mapping_pose;
         pthread_mutex_unlock (&current_pose_lock);
+
         points.begin();
         for(int i=0; i<measure.numberOfScans;i++)
         {
@@ -71,14 +77,33 @@ int Mapping::getPoints(){
             }
             point.x = cos(angle)*measure.Data[i].scanDistance;
             point.y = sin(angle)*measure.Data[i].scanDistance;
+            //TODO test map creation and add angle commutation
+            this->createDynamicMap(point);
             points.push_back(point);
         }
+
+    //TODO TEST DATA FROM thread in points vector;
+
     std::cout << "zmapoval som" << std::endl;
     usleep(1000000);
     }
     return 0;
 
 }
+
+void Mapping::createDynamicMap(POINT bod){
+
+    map[(uint8_t)bod.x/100][(uint8_t)bod.y/100] = 1;
+
+}
+
+void Mapping::createStaticMap(){
+
+    // TODO hombre implementing function
+
+}
+
+
 
 bool Mapping::checkMovement(){
 

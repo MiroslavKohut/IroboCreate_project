@@ -7,6 +7,7 @@
 #include <vector>
 #include <pthread.h>
 #include "structures.h"
+
 class Mapping
 {
 public:
@@ -45,10 +46,14 @@ public:
     pthread_mutex_t current_pose_lock;
 
 protected:
+
+    std::vector< std::vector <uint8_t> > map;
     POSITION irob_current_mapping_pose;
 
 private:
 
+    void createDynamicMap(POINT bod);
+    void createStaticMap();
     //--spustenie merania v novom vlakne (vycitavanie bezi v novom vlakne. treba ho stopnut ak chceme poslat request)
     static void *mappingThreadFun(void *param)
     {
