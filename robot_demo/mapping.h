@@ -47,7 +47,7 @@ public:
 
 protected:
 
-    std::vector< std::vector <uint8_t> > map;
+    std::vector< std::vector<u_int8_t> > map;
     POSITION irob_current_mapping_pose;
 
 private:

@@ -6,6 +6,8 @@
 #define MAP_HIGHT 60
 
 //50cm x 50cm start point // 600cm x 600cm area // 10cm x 10cm square // 60*60 array
+using namespace std;
+
 
 Mapping::Mapping()
 {
@@ -13,7 +15,7 @@ Mapping::Mapping()
     lidar.enable();
     lidar.start();
     irob_current_mapping_pose = POSITION();
-    map = std::vector<std::vector<uint8_t>>(MAP_WIDTH, std::vector<uint8_t>(MAP_HIGHT));
+    map.resize(MAP_WIDTH,vector<uint8_t>(MAP_HIGHT,0));
     mapping_run = false;
 }
 
@@ -75,7 +77,7 @@ int Mapping::getPoints(){
             else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
                 angle = 450 - measure.Data[i].scanAngle;
             }
-            point.x = cos(angle)*measure.Data[i].scanDistance;
+            point.x = cos(angle)*measure.Data[i].scanDistance;  //*16+4.7 bulharska konstanta
             point.y = sin(angle)*measure.Data[i].scanDistance;
             //TODO test map creation and add angle commutation
             this->createDynamicMap(point);
