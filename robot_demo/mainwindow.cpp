@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "QPainter"
 
 #define TIME_STAMP_S 0.007
 
@@ -111,4 +112,48 @@ void MainWindow::on_pushButton_5_clicked()
     else{
         robot_movemet->stopMapping();
     }
+}
+
+void MainWindow::paintEvent(QPaintEvent *event)
+{
+
+    if(paintEventStatus==13)
+    {
+        QPainter painter(this);
+        painter.setPen(Qt::black);
+        painter.setBrush(Qt::white);
+        int widtht=width()-50;
+        int heightt=height();
+        painter.drawRect(500,30,240,240); // zaciatok X=500 Y=30 Koniec X=737 Y=267 drawRect(x,y lavy horny,sirka vyska)
+        painter.setBrush(Qt::black);
+        painter.drawRect(500,130,3,3);
+         painter.drawRect(503,133,3,3);
+        painter.drawRect(506,136,3,3);
+        painter.drawRect(737,267,3,3);//koniec mapy
+
+
+
+       /* Limeasure=lidar.getMeasurementFromFile();;
+         printf("%i \n",Limeasure.timestamp);
+        for(int i=0;i<Limeasure.numberOfScans;i++)
+        {
+
+            float dist = (1.5281*(Limeasure.Data[i].scanDistance)+1.9913);
+            //QString vystup = "Neplatny udaj.";
+            //if (dist >= 13.0) vystup = QString::number(dist);
+            //double dist=rand()%(heightt/2);
+            painter.drawPoint(50+widtht/2+cos(Limeasure.Data[i].scanAngle*3.14159/180.0)*dist,heightt/2+sin(Limeasure.Data[i].scanAngle*3.14159/180.0)*dist);
+            //painter.drawRect(110,120,50,50);<
+        }*/
+        paintEventStatus = 0;
+
+
+    }
+    QWidget::paintEvent(event);
+}
+
+void MainWindow::on_pushButton_6_clicked()
+{
+    paintEventStatus=13;
+    update();
 }

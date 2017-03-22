@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>401</width>
-    <height>668</height>
+    <width>846</width>
+    <height>358</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -83,7 +83,7 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>200</y>
+      <y>240</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -196,14 +196,17 @@
      <string>stop_mapping</string>
     </property>
    </widget>
-   <widget class="QTableView" name="tableView">
+   <widget class="QPushButton" name="pushButton_6">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>360</y>
-      <width>256</width>
-      <height>192</height>
+      <x>260</x>
+      <y>200</y>
+      <width>121</width>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>Draw map</string>
     </property>
    </widget>
   </widget>
@@ -212,7 +215,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>401</width>
+     <width>846</width>
      <height>27</height>
     </rect>
    </property>

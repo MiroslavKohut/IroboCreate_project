@@ -72,13 +72,16 @@ int Mapping::getPoints(){
         points.begin();
         for(int i=0; i<measure.numberOfScans;i++)
         {
+            float dist = measure.Data[i].scanDistance *16+4.7;
+
             if (measure.Data[i].scanAngle <= 90)
                 angle = abs(measure.Data[i].scanAngle - 90);
             else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
                 angle = 450 - measure.Data[i].scanAngle;
             }
-            point.x = cos(angle)*measure.Data[i].scanDistance;  //*16+4.7 bulharska konstanta
-            point.y = sin(angle)*measure.Data[i].scanDistance;
+
+            point.x = cos(angle)* dist;
+            point.y = sin(angle)* dist;
             //TODO test map creation and add angle commutation
             this->createDynamicMap(point);
             points.push_back(point);
