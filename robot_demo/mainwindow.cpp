@@ -117,19 +117,51 @@ void MainWindow::on_pushButton_5_clicked()
 void MainWindow::paintEvent(QPaintEvent *event)
 {
 
+
+ double sx=500;
+ double sy=30;
     if(paintEventStatus==13)
     {
+        Mapping static_map(false);
+        static_map.loadFile();
+
         QPainter painter(this);
-        painter.setPen(Qt::black);
+        painter.setPen(Qt::white);
         painter.setBrush(Qt::white);
         int widtht=width()-50;
         int heightt=height();
-        painter.drawRect(500,30,240,240); // zaciatok X=500 Y=30 Koniec X=737 Y=267 drawRect(x,y lavy horny,sirka vyska)
+        painter.drawRect(500,30,500,350); // zaciatok X=500 Y=30 Koniec X=740 Y=270 drawRect(x,y lavy horny,sirka vyska)
+        painter.setPen(Qt::black);
         painter.setBrush(Qt::black);
-        painter.drawRect(500,130,3,3);
+        for(int x=0;x < MAP_WIDTH ;x++){
+            for(int y=0;y < MAP_HIGHT;y++){
+               if(static_map.map[x][y]==1){
+                   painter.setBrush(Qt::black);
+                 painter.drawRect(500+x*10,30+y*10,10,10);
+               }
+
+            }
+        }
+
+
+
+
+
+      /*painter.drawLine(sx,sy,sx,sy+round(318*240/453));
+       painter.drawLine(sx,sy+round(318*240/453),sx+240,sy+round(318*240/453));
+       painter.drawLine(sx+240,sy+round(318*240/453),sx+240,sy+round(39*240/453));
+       painter.drawLine(sx+240,sy+round(39*240/453),sx+round(431*240/453),sy+round(31*240/453));
+       painter.drawLine(sx+round(431*240/453),sy+round(31*240/453),sx+round(431*240/453),sy);
+
+       painter.drawLine(sx+20*240/453,sy,sx+20*240/453,sy+10*240/453);
+       painter.drawLine(sx+20*240/453,sy+10*240/453,sx+39*240/453,sy+10*240/453);
+       painter.drawLine(sx+39*240/453,sy+10*240/453,sx+39*240/453,sy+0*240/453);
+       painter.drawLine(sx+39*240/453,sy+0*240/453,sx+20*240/453,sy+0*240/453);*/
+
+       /* painter.drawRect(500,130,3,3);
          painter.drawRect(503,133,3,3);
         painter.drawRect(506,136,3,3);
-        painter.drawRect(737,267,3,3);//koniec mapy
+        painter.drawRect(737,267,3,3);//koniec mapy*/
 
 
 

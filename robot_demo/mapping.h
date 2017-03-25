@@ -8,10 +8,14 @@
 #include <pthread.h>
 #include "structures.h"
 
+#define MAP_WIDTH 50
+#define MAP_HIGHT 50
+
+
 class Mapping
 {
 public:
-    Mapping();
+    Mapping(bool with_scan);
     ~Mapping();
 
 private:
@@ -32,22 +36,24 @@ private:
     int thread_out;
 
     pthread_mutex_t mapping_status_lock;
+    pthread_mutex_t mapppin_mutex;
    /* pthread_mutex_lock (&mutexsum);
     dotstr.sum += mysum;
     pthread_mutex_unlock (&mutexsum);*/
 
 public:
-
+    void loadFile();
     int getPoints();
     bool checkMovement();
     void startMapping();
     void stopMapping();
+    void extract_number(std::string& line);
+    std::vector< std::vector<u_int8_t>> map;
 
     pthread_mutex_t current_pose_lock;
 
 protected:
 
-    std::vector< std::vector<u_int8_t> > map;
     POSITION irob_current_mapping_pose;
 
 private:

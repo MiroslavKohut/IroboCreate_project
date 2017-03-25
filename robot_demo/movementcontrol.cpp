@@ -13,7 +13,7 @@
 #define ANG_SAT_DOWN 25
 /*Public methods*/
 
-MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping() {
+MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) {
 
     this->dt = dt;
     irob_current_pose = POSITION();
