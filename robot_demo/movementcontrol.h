@@ -24,7 +24,7 @@ public:
     void robStop();
 
     POSITION new_pose;
-
+    POSITION irob_current_pose;
 
 
 
@@ -37,14 +37,13 @@ private:
     float target_dist;
     iRobotCreate *robot;
 
-    POSITION irob_current_pose;
     POSITION irob_desired_pose;
     POSITION irob_start_pose;
 
     DWORD speed_up;
     DWORD speed_uppos;
 
-    u_int8_t movement_state;
+
     float dist_sum;
 
     //methods

@@ -35,6 +35,7 @@ private:
     int thread_id; //id vlakna
     int thread_out;
 
+
     pthread_mutex_t mapping_status_lock;
     pthread_mutex_t mapppin_mutex;
    /* pthread_mutex_lock (&mutexsum);
@@ -48,9 +49,10 @@ public:
     void startMapping();
     void stopMapping();
     void extract_number(std::string& line);
-    std::vector< std::vector<u_int8_t>> map;
+    std::vector< std::vector<uint8_t> > map;
 
     pthread_mutex_t current_pose_lock;
+    u_int8_t movement_state;
 
 protected:
 

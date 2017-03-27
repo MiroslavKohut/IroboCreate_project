@@ -23,6 +23,7 @@ Mapping::Mapping(bool with_scan)
         lidar.connect("/dev/laser");
         lidar.enable();
         lidar.start();
+        movement_state = 0; //1 movement 2 rotation
     }
 
     irob_current_mapping_pose = POSITION();
@@ -67,6 +68,10 @@ void Mapping::stopMapping(){
 
 }
 
+float degTorad(float data){
+    return data * RAD_DEG;
+}
+
 int Mapping::getPoints(){
     
     float angle=0;
@@ -74,34 +79,58 @@ int Mapping::getPoints(){
     POSITION current_pose;
     while(getMappingStatus()){
 
-        LaserMeasurement measure=lidar.getMeasurement();
+        if (movement_state != 2){
 
-        pthread_mutex_lock (&current_pose_lock);
-        current_pose = irob_current_mapping_pose;
-        pthread_mutex_unlock (&current_pose_lock);
+            LaserMeasurement measure=lidar.getMeasurement();
 
-        points.begin();
-        for(int i=0; i<measure.numberOfScans;i++)
-        {
-            float dist = measure.Data[i].scanDistance *16+4.7;
+            pthread_mutex_lock (&current_pose_lock);
+            current_pose = irob_current_mapping_pose;
+            pthread_mutex_unlock (&current_pose_lock);
 
-            /*if (measure.Data[i].scanAngle <= 90)
-                angle = abs(measure.Data[i].scanAngle - 90);
-            else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
-                angle = 450 - measure.Data[i].scanAngle;
+            points.begin();
+            for(int i=0; i<measure.numberOfScans;i++)
+            {
+                float dist = measure.Data[i].scanDistance *16+4.7;
 
-            }*/
-             // POTOM TO HORE ODKOMENTUJ//
+                if (measure.Data[i].scanAngle <= 90)
+                    angle = fabs(measure.Data[i].scanAngle - 90);
+                else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
+                    angle = 450 - measure.Data[i].scanAngle;
 
-            point.x = cos(angle)* dist;
-            point.y = sin(angle)* dist;
-            //TODO test map creation and add angle commutation
-            this->createDynamicMap(point);
-            points.push_back(point);
+                }
+                if(current_pose.angle > 0){
+                    angle = angle - current_pose.angle;
+                }
+                else if(current_pose.angle < 0){
+                    angle = angle - 180 + current_pose.angle;
+                }
+
+                point.x = -(cos(degTorad(angle))* dist + current_pose.x);
+                point.y = sin(degTorad(angle))* dist + current_pose.y;
+                /*if (point.x <0 ){
+                    point.x = 0;
+                }
+                if (point.y <0){
+                    point.y = 0;
+                }
+                if (point.y > 5000){
+                    cout << point.y << endl;
+                    point.y = 4900;
+                }
+                if (point.x > 5000){
+                    cout << point.x << endl;
+                    point.x = 4900;
+                }*/
+
+                if (point.x > 0 && point.y > 0 && point.y <= 4900 && point.x <= 4900 ){
+                    this->createDynamicMap(point);
+                }
+
+                //TODO test map creation and add angle commutation
+                points.push_back(point);
+            }
         }
-
     //TODO TEST DATA FROM thread in points vector;
-
     std::cout << "zmapoval som" << std::endl;
     usleep(1000000);
     }
@@ -111,9 +140,9 @@ int Mapping::getPoints(){
 
 void Mapping::createDynamicMap(POINT bod){
 
-    pthread_mutex_lock (&mapppin_mutex);
-    map[(uint8_t)bod.x/100][(uint8_t)bod.y/100] = 1;
-    pthread_mutex_unlock (&mapppin_mutex);
+    //pthread_mutex_lock (&mapppin_mutex);
+    map[(int)(bod.x/100)][(int)(bod.y/100)] = 1;
+    //pthread_mutex_unlock (&mapppin_mutex);
 
 
 }

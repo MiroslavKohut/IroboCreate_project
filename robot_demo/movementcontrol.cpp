@@ -5,11 +5,9 @@
 #define P_ANG 2.0
 #define ANGL_DZ 1
 #define POS_DZ 50
-#define RAD_DEG M_PI/180
-#define DEG_RAD 180/M_PI
 
-#define SPEED_SAT_UP 300
-#define ANG_SAT_UP 300
+#define SPEED_SAT_UP 250
+#define ANG_SAT_UP 250
 #define ANG_SAT_DOWN 25
 /*Public methods*/
 
@@ -24,7 +22,6 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) 
 
     this->robot = robot;
 
-    movement_state = 0; //1 movement 2 rotation
     this->irob_current_pose.x = -500;
     this->irob_current_pose.y = 500;
 
@@ -51,23 +48,23 @@ float MovementControl::radTodeg(float data){
 
 
 float MovementControl::robRotateR(DWORD speed){
-    movement_state = 2;
+    Mapping::movement_state = 2;
     this->robot->move(-speed,speed);
 }
 float MovementControl::robRotateL(DWORD speed){
-    movement_state = 2;
+    Mapping::movement_state = 2;
     this->robot->move(speed,-speed);
 
 }
 
 float MovementControl::robMove(DWORD speed){
-    movement_state = 1;
+    Mapping::movement_state = 1;
     this->robot->move(speed,speed);
 }
 
 void MovementControl::robStop(){
 
-    movement_state = 0;
+    Mapping::movement_state = 0;
     this->robot->move(0,0);
 }
 
@@ -78,7 +75,7 @@ void MovementControl::updatePose(float pose_change, float angle_change){
     float angle=0;
 
     //todo teting of remake switch statement to if statement
-    if(movement_state == 1 || pose_change > 0){
+    if(Mapping::movement_state == 1 || pose_change > 0){
 
         if (this->irob_current_pose.angle  <= 90)
             angle = abs(this->irob_current_pose.angle  - 90);
@@ -96,13 +93,13 @@ void MovementControl::updatePose(float pose_change, float angle_change){
         //std::cout << "istance: " << dist_sum << "start" << irob_start_pose.x << std::endl;
     }
 
-    if(movement_state == 2 || angle_change > 0){
+    if(Mapping::movement_state == 2 || angle_change > 0){
 
         this->irob_current_pose.angle = this->irob_current_pose.angle + angle_change;
 
     }
 
-    if(movement_state == 0 && pose_change == 0 && angle_change == 0){
+    if(Mapping::movement_state == 0 && pose_change == 0 && angle_change == 0){
 
         dist_sum = 0;
         irob_start_pose.x = this->irob_current_pose.x;
