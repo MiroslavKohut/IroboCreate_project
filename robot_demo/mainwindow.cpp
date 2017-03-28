@@ -121,7 +121,27 @@ void MainWindow::paintEvent(QPaintEvent *event)
  double sx=500;
  double sy=30;
 
+    if(paintEventStatus==14){
+        Mapping static_map(false);
+        static_map.loadFile();
+        QPainter painter(this);
+        painter.setPen(Qt::white);
+        painter.setBrush(Qt::white);
+        int widtht=width()-50;
+        int heightt=height();
+        painter.drawRect(500,30,500,500); // zaciatok X=500 Y=30 Koniec X=740 Y=270 drawRect(x,y lavy horny,sirka vyska)
+        painter.setPen(Qt::black);
+        painter.setBrush(Qt::black);
+        for(int x=0;x < MAP_WIDTH ;x++){
+            for(int y=0;y < MAP_HIGHT;y++){
+               if(static_map.map[x][y]==1){
+                   painter.setBrush(Qt::black);
+                 painter.drawRect(500+x*5,30+y*5,5,5);
+               }
+            }
+        }
 
+    }
     if(paintEventStatus==13)
     {
         //Mapping static_map(false);
@@ -143,7 +163,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                }*/
                if(robot_movemet->map[x][y]==1){
                    painter.setBrush(Qt::black);
-                 painter.drawRect(500+x*10,30+y*10,10,10);
+                 painter.drawRect(500+x*5,30+y*5,5,5);
                }
 
             }
@@ -154,36 +174,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
         int temp2=(int)(robot_movemet->irob_current_pose.y/100)*10+30;
 
         painter.drawRect(temp1,temp2,10,10);
-      /*painter.drawLine(sx,sy,sx,sy+round(318*240/453));
-       painter.drawLine(sx,sy+round(318*240/453),sx+240,sy+round(318*240/453));
-       painter.drawLine(sx+240,sy+round(318*240/453),sx+240,sy+round(39*240/453));
-       painter.drawLine(sx+240,sy+round(39*240/453),sx+round(431*240/453),sy+round(31*240/453));
-       painter.drawLine(sx+round(431*240/453),sy+round(31*240/453),sx+round(431*240/453),sy);
 
-       painter.drawLine(sx+20*240/453,sy,sx+20*240/453,sy+10*240/453);
-       painter.drawLine(sx+20*240/453,sy+10*240/453,sx+39*240/453,sy+10*240/453);
-       painter.drawLine(sx+39*240/453,sy+10*240/453,sx+39*240/453,sy+0*240/453);
-       painter.drawLine(sx+39*240/453,sy+0*240/453,sx+20*240/453,sy+0*240/453);*/
-
-       /* painter.drawRect(500,130,3,3);
-         painter.drawRect(503,133,3,3);
-        painter.drawRect(506,136,3,3);
-        painter.drawRect(737,267,3,3);//koniec mapy*/
-
-
-
-       /* Limeasure=lidar.getMeasurementFromFile();;
-         printf("%i \n",Limeasure.timestamp);
-        for(int i=0;i<Limeasure.numberOfScans;i++)
-        {
-
-            float dist = (1.5281*(Limeasure.Data[i].scanDistance)+1.9913);
-            //QString vystup = "Neplatny udaj.";
-            //if (dist >= 13.0) vystup = QString::number(dist);
-            //double dist=rand()%(heightt/2);
-            painter.drawPoint(50+widtht/2+cos(Limeasure.Data[i].scanAngle*3.14159/180.0)*dist,heightt/2+sin(Limeasure.Data[i].scanAngle*3.14159/180.0)*dist);
-            //painter.drawRect(110,120,50,50);<
-        }*/
         paintEventStatus = 0;
 
 
@@ -195,5 +186,11 @@ void MainWindow::on_pushButton_6_clicked()
 {
 
     paintEventStatus=13;
+    update();
+}
+
+void MainWindow::on_pushButton_7_clicked()
+{
+    paintEventStatus=14;
     update();
 }

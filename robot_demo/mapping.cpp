@@ -187,20 +187,23 @@ void Mapping::loadFile(){
 
 
            }
+           for (n=0;n<y;n++){
+               pos[n]=pos[n]*2;
+           }
 
            for (n=0;n<y-2;n+=2){
               int distx=(pos[n+2]-pos[n]);
               int disty=(pos[n+3]-pos[n+1]);
 
-              for (k=0;k<60;k++){
-                    map[(uint8_t)round(pos[n]/10+distx*k/600)][(uint8_t)round(pos[n+1]/10+disty*k/600)] = 1;
+              for (k=0;k<160;k++){
+                    map[(uint8_t)round(pos[n]/10+distx*k/1600)][(uint8_t)round(pos[n+1]/10+disty*k/1600)] = 1;
               }
            }
            int distx=(pos[0]-pos[n]);
            int disty=(pos[1]-pos[n+1]);
 
-           for (k=0;k<60;k++){
-                    map[(uint8_t)round(pos[n]/10+distx*k/600)][(uint8_t)round(pos[n+1]/10+disty*k/600)] = 1;
+           for (k=0;k<160;k++){
+                    map[(uint8_t)round(pos[n]/10+distx*k/1600)][(uint8_t)round(pos[n+1]/10+disty*k/1600)] = 1;
            }
 
 

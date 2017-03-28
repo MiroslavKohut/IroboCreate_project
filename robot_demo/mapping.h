@@ -8,8 +8,8 @@
 #include <pthread.h>
 #include "structures.h"
 
-#define MAP_WIDTH 50
-#define MAP_HIGHT 50
+#define MAP_WIDTH 100
+#define MAP_HIGHT 100
 
 
 class Mapping
