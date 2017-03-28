@@ -122,7 +122,7 @@ int Mapping::getPoints(){
                     point.x = 4900;
                 }*/
 
-                if (point.x > 0 && point.y > 0 && point.y <= 4900 && point.x <= 4900 ){
+                if (point.x > 0 && point.y > 0 && point.y <= 4950 && point.x <= 4950 ){
                     this->createDynamicMap(point);
                 }
 
@@ -141,7 +141,7 @@ int Mapping::getPoints(){
 void Mapping::createDynamicMap(POINT bod){
 
     //pthread_mutex_lock (&mapppin_mutex);
-    map[(int)(bod.x/100)][(int)(bod.y/100)] = 1;
+    map[(int)(bod.x/50)][(int)(bod.y/50)] = 1;
     //pthread_mutex_unlock (&mapppin_mutex);
 
 
@@ -160,7 +160,8 @@ void Mapping::loadFile(){
 
    ifstream myfile ("priestor.txt");
    if (myfile.is_open())
-      {std::cout << "asd"<<std::endl;
+      {
+       std::cout << "asd"<<std::endl;
         while ( getline (myfile,line) )
         {
            y=0;
