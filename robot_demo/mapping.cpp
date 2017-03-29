@@ -182,9 +182,9 @@ void Mapping::loadFile(){
                if(d[n]==','){
                    d[n]='?';
                }
-             /*  if(d[n]=='.'){
+               if(d[n]=='.'){
                    d[n]=',';
-               }*/
+               }
            }
            d++;
            for (n=0;n<(c[0]-48)*2;n++){
@@ -206,14 +206,26 @@ void Mapping::loadFile(){
               int disty=(pos[n+3]-pos[n+1]);
 
               for (k=0;k<160;k++){
-                    map[(uint8_t)round(pos[n+1]/10+disty*k/1600)][(uint8_t)round(pos[n]/10+distx*k/1600)] = 1;
+                  for(int j=-2;j<3;j++){
+                      for(int m=-2;m<3;m++){
+                          if((uint8_t)round(pos[n+1]/10+disty*k/1600)+j>0 &&(uint8_t)round(pos[n]/10+distx*k/1600)+m>0){
+                            map[(uint8_t)round(pos[n+1]/10+disty*k/1600)+j][(uint8_t)round(pos[n]/10+distx*k/1600)+m] = 1;
+                          }
+                      }
+                  }
               }
            }
            int distx=(pos[0]-pos[n]);
            int disty=(pos[1]-pos[n+1]);
 
            for (k=0;k<160;k++){
-                    map[(uint8_t)round(pos[n+1]/10+disty*k/1600)][(uint8_t)round(pos[n]/10+distx*k/1600)] = 1;
+               for(int j=-2;j<3;j++){
+                   for(int m=-2;m<3;m++){
+                       if((uint8_t)round(pos[n+1]/10+disty*k/1600)+j>0 &&(uint8_t)round(pos[n]/10+distx*k/1600)+m>0){
+                         map[(uint8_t)round(pos[n+1]/10+disty*k/1600)+j][(uint8_t)round(pos[n]/10+distx*k/1600)+m] = 1;
+                       }
+                   }
+               }
            }
 
 
