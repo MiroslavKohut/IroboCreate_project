@@ -147,6 +147,9 @@ void Mapping::createDynamicMap(POINT bod){
 
 }
 void Mapping::loadFile(){
+
+
+   //TODO VYMENIT X za Y
    int i=0;
    int pos[40];
    int y=0;
@@ -184,9 +187,6 @@ void Mapping::loadFile(){
                 temp=strtod(d, &d);
                 pos[y]=round(temp);
                 y++;
-
-
-
            }
            for (n=0;n<y;n++){
                pos[n]=pos[n]*2;
@@ -197,35 +197,23 @@ void Mapping::loadFile(){
               int disty=(pos[n+3]-pos[n+1]);
 
               for (k=0;k<160;k++){
-                    map[(uint8_t)round(pos[n]/10+distx*k/1600)][(uint8_t)round(pos[n+1]/10+disty*k/1600)] = 1;
+                    map[(uint8_t)round(pos[n+1]/10+disty*k/1600)][(uint8_t)round(pos[n]/10+distx*k/1600)] = 1;
               }
            }
            int distx=(pos[0]-pos[n]);
            int disty=(pos[1]-pos[n+1]);
 
            for (k=0;k<160;k++){
-                    map[(uint8_t)round(pos[n]/10+distx*k/1600)][(uint8_t)round(pos[n+1]/10+disty*k/1600)] = 1;
+                    map[(uint8_t)round(pos[n+1]/10+disty*k/1600)][(uint8_t)round(pos[n]/10+distx*k/1600)] = 1;
            }
 
 
         }
         myfile.close();
       }
-   POINT start;
-   POINT end;
-   start.x = -500;
-   start.y = 500;
-
-   end.x = -2200;
-   end.y = 2900;
-
-   this->findPath(start,end);
-
 }
 
-std::vector<POINT> Mapping::findPath(POINT start, POINT end){
-
-    std::vector<POINT> cesta;
+bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
     start.x = -start.x;
     end.x = -end.x;
 
@@ -252,6 +240,7 @@ std::vector<POINT> Mapping::findPath(POINT start, POINT end){
                        map[x_pose][y_pose] = start_num + 1;
 
                    x_pose = x-1;
+                   y_pose = y;
                    if(map[x_pose][y_pose] == 0)
                        map[x_pose][y_pose] = start_num + 1;
 
@@ -260,6 +249,7 @@ std::vector<POINT> Mapping::findPath(POINT start, POINT end){
                    if(map[x_pose][y_pose] == 0)
                        map[x_pose][y_pose] = start_num + 1;
 
+                   x_pose = x;
                    y_pose = y+1;
                    if(map[x_pose][y_pose] == 0)
                        map[x_pose][y_pose] = start_num + 1;
@@ -268,28 +258,193 @@ std::vector<POINT> Mapping::findPath(POINT start, POINT end){
         }
 
         if(map[end_x][end_y] == 1){
-            cout << "PATH IS COLLIDING WITH SURROUNDING" << endl;
-            break;
+            cout << "PATH IS COLLIDES WITH SURROUNDING" << endl;
+            return false;
         }
         else if (map[end_x][end_y] > 1){
-            cout << "PATH FOUND" << endl;
+
+            POINT curr_array_pose;
+            bool previous_x =false;
+            bool previous_y =false;
+
             int end_number = map[end_x][end_y];
-            break;
+
+            curr_array_pose.x = end_x;
+            curr_array_pose.y = end_y;
+
+            map[end_x][end_y] = 200;
+
+            cesta.push_back(curr_array_pose);
+
+            while(end_number > 2){
+
+                bool jump = false;
+
+                if(previous_x){
+                    x_pose = end_x;
+                    y_pose = end_y-1;
+                    if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                       jump = true;
+                       end_y--;
+                       previous_y = true;
+                       previous_x = false;
+                    }
+                    else if(!jump){
+                        previous_y = false;
+                        previous_x = false;
+                    }
+
+                    if(!jump){
+                        x_pose = end_x;
+                        y_pose = end_y-1;
+                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                           jump = true;
+                           previous_y = true;
+                           previous_x = false;
+                           end_y--;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+
+                        x_pose = end_x-1;
+                        y_pose = end_y;
+                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump ){
+                            jump = true;
+                            previous_x = true;
+                            previous_y = false;
+                            end_x--;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+                    }
+
+                }
+                else if(previous_y){
+                    x_pose = end_x-1;
+                    y_pose = end_y;
+                    if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump ){
+                        jump = true;
+                        end_x--;
+                        previous_x = true;
+                        previous_y = false;
+                    }
+                    else if(!jump){
+                        previous_y = false;
+                        previous_x = false;
+                    }
+
+                    if(!jump){
+                        x_pose = end_x;
+                        y_pose = end_y-1;
+                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                           jump = true;
+                           previous_y = true;
+                           previous_x = false;
+                           end_y--;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+
+                        x_pose = end_x-1;
+                        y_pose = end_y;
+                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump ){
+                            jump = true;
+                            previous_x = true;
+                            previous_y = false;
+                            end_x--;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+                    }
+                }
+                else
+                {
+                    x_pose = end_x;
+                    y_pose = end_y-1;
+                    if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                       jump = true;
+                       previous_y = true;
+                       previous_x = false;
+                       end_y--;
+                    }
+                    else if(!jump){
+                        previous_y = false;
+                        previous_x = false;
+                    }
+
+                    x_pose = end_x-1;
+                    y_pose = end_y;
+                    if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump ){
+                        jump = true;
+                        previous_x = true;
+                        previous_y = false;
+                        end_x--;
+                    }
+                    else if(!jump){
+                        previous_y = false;
+                        previous_x = false;
+                    }
+
+                }
+
+                x_pose = end_x+1;
+                y_pose = end_y;
+                if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                    jump = true;
+                    end_x++;
+                }
+
+                x_pose = end_x;
+                y_pose = end_y+1;
+                if(map[x_pose][y_pose] == end_number && map[x_pose][y_pose] > 2 && !jump){
+                   jump = true;
+                   end_y++;
+                }
+/*
+                if(!jump){
+                    end_number++;
+                    if(end_x == start_x && end_y == start_y){
+                        map[end_x][end_y] = 200;
+                        curr_array_pose.x = end_x;
+                        curr_array_pose.y = end_y;
+                        cesta.push_back(curr_array_pose);
+                        break;
+                    }
+                    continue;
+                }*/
+
+                map[end_x][end_y] = 200;
+                curr_array_pose.x = end_x;
+                curr_array_pose.y = end_y;
+                cesta.push_back(curr_array_pose);
+                end_number--;
+
+            }
+
+            cout << "PATH FOUND" << endl;
+            cout << "SIZE: " << cesta.size() << endl;
+            return true;
         }
 
-        cout << start_num << endl;
-
+        //cout << start_num << endl;
         start_num++;
-
-        for(int x=0;x < MAP_WIDTH ;x++){
+        /*for(int x=0;x < MAP_WIDTH ;x++){
             for(int y=0;y < MAP_HIGHT;y++){
-               printf("%d ", map[x][y]);
+               printf("%3d ", map[x][y]);
                }
             cout << endl;
         }
+        cout << endl;
+        sleep(1);*/
     }
-
-    return cesta;
 }
 
 

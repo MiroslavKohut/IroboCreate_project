@@ -49,7 +49,7 @@ public:
     void startMapping();
     void stopMapping();
     void extract_number(std::string& line);
-    std::vector<POINT> findPath(POINT start, POINT end);
+    bool findPath(std::vector<POINT> &cesta,POINT start, POINT end);
 
     std::vector< std::vector<uint8_t> > map;
 

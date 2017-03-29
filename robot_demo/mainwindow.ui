@@ -160,7 +160,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>140</x>
       <y>210</y>
       <width>68</width>
       <height>21</height>
@@ -220,6 +220,110 @@
     </property>
     <property name="text">
      <string>Load File</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>270</y>
+      <width>68</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>start_x</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>270</y>
+      <width>68</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>start_y</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>350</y>
+      <width>68</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>stop_x</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>350</y>
+      <width>68</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>stop_y</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="start_x">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>300</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-500</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="start_y">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>300</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>500</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="stop_y">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>380</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>3900</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="stop_x">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>380</y>
+      <width>113</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-2400</string>
     </property>
    </widget>
   </widget>

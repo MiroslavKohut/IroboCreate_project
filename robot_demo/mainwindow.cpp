@@ -125,6 +125,18 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
         Mapping static_map(false);
         static_map.loadFile();
+
+        std::vector<POINT> path;
+
+        POINT start = {ui->start_x->text().toInt(),ui->start_y->text().toInt()};
+        POINT end = {ui->stop_x->text().toInt(),ui->stop_y->text().toInt()};
+
+        if(!static_map.findPath(path,start,end))
+        {
+            cout<< "NENASLO CESTU VYKRESLUJEM LEN MAPU" << endl;
+        }
+
+
         QPainter painter(this);
         painter.setPen(Qt::white);
         painter.setBrush(Qt::white);
@@ -135,14 +147,16 @@ void MainWindow::paintEvent(QPaintEvent *event)
         painter.setBrush(Qt::black);
         for(int x=0;x < MAP_WIDTH ;x++){
             for(int y=0;y < MAP_HIGHT;y++){
-               if(static_map.map[x][y]==1){
+               if(static_map.map[x][y]== 1){
                    painter.setBrush(Qt::black);
+                 painter.drawRect(500+x*5,30+y*5,5,5);
+               }
+               if(static_map.map[x][y]== 200){
+                   painter.setBrush(Qt::red);
                  painter.drawRect(500+x*5,30+y*5,5,5);
                }
             }
         }
-
-
     }
     if(paintEventStatus==13)
     {
