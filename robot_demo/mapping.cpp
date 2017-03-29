@@ -141,7 +141,7 @@ int Mapping::getPoints(){
 void Mapping::createDynamicMap(POINT bod){
 
     //pthread_mutex_lock (&mapppin_mutex);
-    map[(int)(bod.x/50)][(int)(bod.y/50)] = 1;
+    map[(int)(bod.x/DIV_CONST)][(int)(bod.y/DIV_CONST)] = 1;
     //pthread_mutex_unlock (&mapppin_mutex);
 
 
@@ -211,13 +211,85 @@ void Mapping::loadFile(){
         }
         myfile.close();
       }
+   POINT start;
+   POINT end;
+   start.x = -500;
+   start.y = 500;
+
+   end.x = -2200;
+   end.y = 2900;
+
+   this->findPath(start,end);
 
 }
 
-void Mapping::createStaticMap(){
+std::vector<POINT> Mapping::findPath(POINT start, POINT end){
 
-    // TODO hombre implementing function
+    std::vector<POINT> cesta;
+    start.x = -start.x;
+    end.x = -end.x;
 
+    uint8_t start_num = 2;
+    uint8_t start_x =(int)start.x/DIV_CONST;
+    uint8_t start_y= (int)start.y/DIV_CONST;
+
+    uint8_t end_x =(int)end.x/DIV_CONST;
+    uint8_t end_y= (int)end.y/DIV_CONST;
+
+    uint8_t x_pose;
+    uint8_t y_pose;
+
+    map[start_x][start_y] = start_num;
+
+    while(1){
+        for(int x=1;x < MAP_WIDTH-1 ;x++){
+            for(int y=1;y < MAP_HIGHT-1;y++){
+
+                if(map[x][y]== start_num){
+                   x_pose = x+1;
+                   y_pose = y;
+                   if(map[x_pose][y_pose] == 0)
+                       map[x_pose][y_pose] = start_num + 1;
+
+                   x_pose = x-1;
+                   if(map[x_pose][y_pose] == 0)
+                       map[x_pose][y_pose] = start_num + 1;
+
+                   x_pose = x;
+                   y_pose = y-1;
+                   if(map[x_pose][y_pose] == 0)
+                       map[x_pose][y_pose] = start_num + 1;
+
+                   y_pose = y+1;
+                   if(map[x_pose][y_pose] == 0)
+                       map[x_pose][y_pose] = start_num + 1;
+               }
+            }
+        }
+
+        if(map[end_x][end_y] == 1){
+            cout << "PATH IS COLLIDING WITH SURROUNDING" << endl;
+            break;
+        }
+        else if (map[end_x][end_y] > 1){
+            cout << "PATH FOUND" << endl;
+            int end_number = map[end_x][end_y];
+            break;
+        }
+
+        cout << start_num << endl;
+
+        start_num++;
+
+        for(int x=0;x < MAP_WIDTH ;x++){
+            for(int y=0;y < MAP_HIGHT;y++){
+               printf("%d ", map[x][y]);
+               }
+            cout << endl;
+        }
+    }
+
+    return cesta;
 }
 
 

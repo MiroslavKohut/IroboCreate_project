@@ -10,7 +10,7 @@
 
 #define MAP_WIDTH 100
 #define MAP_HIGHT 100
-
+#define DIV_CONST 50
 
 class Mapping
 {
@@ -49,6 +49,8 @@ public:
     void startMapping();
     void stopMapping();
     void extract_number(std::string& line);
+    std::vector<POINT> findPath(POINT start, POINT end);
+
     std::vector< std::vector<uint8_t> > map;
 
     pthread_mutex_t current_pose_lock;
@@ -61,7 +63,7 @@ protected:
 private:
 
     void createDynamicMap(POINT bod);
-    void createStaticMap();
+
     //--spustenie merania v novom vlakne (vycitavanie bezi v novom vlakne. treba ho stopnut ak chceme poslat request)
     static void *mappingThreadFun(void *param)
     {
