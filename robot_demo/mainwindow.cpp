@@ -171,8 +171,6 @@ void MainWindow::paintEvent(QPaintEvent *event)
             QPainter painter(this);
             painter.setPen(Qt::white);
             painter.setBrush(Qt::white);
-            int widtht=width()-50;
-            int heightt=height();
             painter.drawRect(500,30,500,500); // zaciatok X=500 Y=30 Koniec X=740 Y=270 drawRect(x,y lavy horny,sirka vyska)
             painter.setPen(Qt::black);
             painter.setBrush(Qt::black);
