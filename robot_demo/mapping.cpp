@@ -91,6 +91,8 @@ int Mapping::getPoints(){
             for(int i=0; i<measure.numberOfScans;i++)
             {
                 float dist = measure.Data[i].scanDistance *16+4.7;
+                if(dist > 2000)
+                    continue;
 
                 if (measure.Data[i].scanAngle <= 90)
                     angle = fabs(measure.Data[i].scanAngle - 90);
@@ -98,11 +100,13 @@ int Mapping::getPoints(){
                     angle = 450 - measure.Data[i].scanAngle;
 
                 }
+
+                // robot angle usage
                 if(current_pose.angle > 0){
-                    angle = angle - current_pose.angle;
+                    angle = angle + 360 - current_pose.angle;
                 }
                 else if(current_pose.angle < 0){
-                    angle = angle - 180 + current_pose.angle;
+                    angle = angle - current_pose.angle;
                 }
 
                 point.x = -(cos(degTorad(angle))* dist + current_pose.x);
@@ -122,10 +126,14 @@ int Mapping::getPoints(){
                     point.x = 4900;
                 }*/
 
-                if (point.x > 0 && point.y > 0 && point.y <= 4950 && point.x <= 4950 ){
-                    this->createDynamicMap(point);
+                if (point.x < 0 ){
+                    point.x = 0;
                 }
-
+                if (point.y < 0 ){
+                    point.y = 0;
+                }
+                if(point.x < 4950 && point.y < 4950)
+                    this->createDynamicMap(point);
                 //TODO test map creation and add angle commutation
                 points.push_back(point);
             }
@@ -174,9 +182,9 @@ void Mapping::loadFile(){
                if(d[n]==','){
                    d[n]='?';
                }
-               if(d[n]=='.'){
+             /*  if(d[n]=='.'){
                    d[n]=',';
-               }
+               }*/
            }
            d++;
            for (n=0;n<(c[0]-48)*2;n++){
@@ -187,6 +195,7 @@ void Mapping::loadFile(){
                 temp=strtod(d, &d);
                 pos[y]=round(temp);
                 y++;
+                 std::cout << temp<<std::endl;
            }
            for (n=0;n<y;n++){
                pos[n]=pos[n]*2;
@@ -449,8 +458,14 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
 
 
 
-bool Mapping::checkMovement(){
+bool Mapping::clearMap(){
 
+    for(int x=0;x < MAP_WIDTH ;x++){
+        for(int y=0;y < MAP_HIGHT;y++){
+            map[x][y]=0;
+         }
+    }
 }
+
 
 

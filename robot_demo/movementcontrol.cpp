@@ -4,10 +4,10 @@
 #define P_REG 2.5
 #define P_ANG 2.0
 #define ANGL_DZ 1
-#define POS_DZ 50
+#define POS_DZ 60
 
-#define SPEED_SAT_UP 250
-#define ANG_SAT_UP 250
+#define SPEED_SAT_UP 180
+#define ANG_SAT_UP 180
 #define ANG_SAT_DOWN 25
 /*Public methods*/
 
@@ -201,7 +201,7 @@ bool MovementControl::pidControlRotation(){
         if (fabs(temp_angle)<=ANGL_DZ){
             //this->robot->move(0,0);
             this->robStop();
-
+            speed_up=0;
             setPosAngle(true);
             return true;
 
@@ -209,8 +209,8 @@ bool MovementControl::pidControlRotation(){
 
         else if (temp_angle>0) {
             cur_speed=fabs(temp_angle)*P_ANG;
-            if (cur_speed-speed_up>25){
-                cur_speed=speed_up+25;}
+            if (cur_speed-speed_up>10){
+                cur_speed=speed_up+10;}
 
 
             if(cur_speed>ANG_SAT_UP){
@@ -227,8 +227,8 @@ bool MovementControl::pidControlRotation(){
 
         else if (temp_angle<0) {
             cur_speed=fabs(temp_angle)*P_ANG;
-            if (cur_speed-speed_up>25){
-                cur_speed=speed_up+25;}
+            if (cur_speed-speed_up>10){
+                cur_speed=speed_up+10;}
 
 
             if(cur_speed>ANG_SAT_UP){
@@ -264,19 +264,20 @@ bool MovementControl::pidControlTranslation(){
         if (fabs(temp_dist)<POS_DZ){
             //this->robot->move(0,0);
             this->robStop();
-
+            speed_uppos=0;
             return true;
         }
         else{
-            if (fabs(temp_angle)>=ANGL_DZ && (temp_dist > 1300)){
+            if (fabs(temp_angle)>=ANGL_DZ && (temp_dist > 250)){
+                speed_uppos=0;
                 setPosAngle(false);
             }
            /*if (temp_angle>(ANGL_DZ)){this->robRotateR(15); speed_uppos=15;  std::cout << "TEMP ANGLE R" << temp_angle << std::endl;}
             else if (temp_angle<-ANGL_DZ){this->robRotateL(15); speed_uppos=15;  std::cout << "TEMP ANGLE L" << temp_angle << std::endl;}
             else {*/
                 cur_speed=temp_dist*P_REG;
-                if (cur_speed-speed_uppos>35){
-                    cur_speed=speed_uppos+35;}
+                if (cur_speed-speed_uppos>20){
+                    cur_speed=speed_uppos+20;}
 
 
                 if(cur_speed>SPEED_SAT_UP){

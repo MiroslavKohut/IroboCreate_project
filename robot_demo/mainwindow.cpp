@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     irob_data = INFO_DATA();
     robot = NULL;
+    static_map = new Mapping(false);
 }
 
 MainWindow::~MainWindow()
@@ -123,15 +124,15 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
     if(paintEventStatus==14){
 
-        Mapping static_map(false);
-        static_map.loadFile();
+        static_map->clearMap();
+        static_map->loadFile();
 
         std::vector<POINT> path;
 
         POINT start = {ui->start_x->text().toInt(),ui->start_y->text().toInt()};
         POINT end = {ui->stop_x->text().toInt(),ui->stop_y->text().toInt()};
 
-        if(!static_map.findPath(path,start,end))
+        if(!static_map->findPath(path,start,end))
         {
             cout<< "NENASLO CESTU VYKRESLUJEM LEN MAPU" << endl;
         }
@@ -147,11 +148,11 @@ void MainWindow::paintEvent(QPaintEvent *event)
         painter.setBrush(Qt::black);
         for(int x=0;x < MAP_WIDTH ;x++){
             for(int y=0;y < MAP_HIGHT;y++){
-               if(static_map.map[x][y]== 1){
+               if(static_map->map[x][y]== 1){
                    painter.setBrush(Qt::black);
                  painter.drawRect(500+x*5,30+y*5,5,5);
                }
-               if(static_map.map[x][y]== 200){
+               if(static_map->map[x][y]== 200){
                    painter.setBrush(Qt::red);
                  painter.drawRect(500+x*5,30+y*5,5,5);
                }
@@ -212,4 +213,9 @@ void MainWindow::on_pushButton_7_clicked()
 {
     paintEventStatus=14;
     update();
+}
+
+void MainWindow::on_pushButton_8_clicked()
+{
+    robot_movemet->clearMap();
 }

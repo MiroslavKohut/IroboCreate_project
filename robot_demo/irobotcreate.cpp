@@ -87,7 +87,7 @@ void iRobotCreate::doSensorReadings(void *param, ProcessDataFromCreate callback)
         CreateSensors sensor_struct;
         //printf("vlakno\n");
         SentToCreate(OI_SENSORS,(unsigned char)0x06);
-        usleep(100*1000);
+        usleep(50*1000);
         int k=ReceivePacketFromCreate(sensor_struct,0x06);
         if(k==0)
         {
@@ -101,7 +101,7 @@ void iRobotCreate::doSensorReadings(void *param, ProcessDataFromCreate callback)
         {
             printf("pruser %i\n",k);
         }
-        usleep(80*1000);
+        usleep(40*1000);
 
     }
 }

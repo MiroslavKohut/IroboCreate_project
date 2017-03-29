@@ -48,6 +48,7 @@ public:
     bool checkMovement();
     void startMapping();
     void stopMapping();
+    bool clearMap();
     void extract_number(std::string& line);
     bool findPath(std::vector<POINT> &cesta,POINT start, POINT end);
 
