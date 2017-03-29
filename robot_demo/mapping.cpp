@@ -250,6 +250,7 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
 
     map[start_x][start_y] = start_num;
 
+
     while(1){
         for(int x=1;x < MAP_WIDTH-1 ;x++){
             for(int y=1;y < MAP_HIGHT-1;y++){
@@ -282,6 +283,7 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
             cout << "PATH IS COLLIDES WITH SURROUNDING" << endl;
             return false;
         }
+        // NASLO KONCOVY BOD IDEM NAJST CESTU
         else if (map[end_x][end_y] > 1){
 
             POINT curr_array_pose;
@@ -293,7 +295,7 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
             curr_array_pose.x = end_x;
             curr_array_pose.y = end_y;
 
-            map[end_x][end_y] = 200;
+            map[end_x][end_y] = 201;
 
             cesta.push_back(curr_array_pose);
 
@@ -304,6 +306,7 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
                 if(previous_x){
                     x_pose = end_x;
                     y_pose = end_y-1;
+
                     if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
                        jump = true;
                        end_y--;
@@ -315,43 +318,11 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
                         previous_x = false;
                     }
 
-                    if(!jump){
-                        x_pose = end_x;
-                        y_pose = end_y-1;
-                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
-                           jump = true;
-                           previous_y = true;
-                           previous_x = false;
-                           end_y--;
-                        }
-                        else if(!jump){
-                            previous_y = false;
-                            previous_x = false;
-                        }
-
-                        x_pose = end_x-1;
-                        y_pose = end_y;
-                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump ){
-                            jump = true;
-                            previous_x = true;
-                            previous_y = false;
-                            end_x--;
-                        }
-                        else if(!jump){
-                            previous_y = false;
-                            previous_x = false;
-                        }
-                    }
-
-                }
-                else if(previous_y){
-                    x_pose = end_x-1;
-                    y_pose = end_y;
-                    if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump ){
-                        jump = true;
-                        end_x--;
-                        previous_x = true;
-                        previous_y = false;
+                    x_pose = end_x;
+                    y_pose = end_y+1;
+                    if(map[x_pose][y_pose] == end_number && map[x_pose][y_pose] > 2 && !jump){
+                       jump = true;
+                       end_y++;
                     }
                     else if(!jump){
                         previous_y = false;
@@ -379,6 +350,107 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
                             previous_x = true;
                             previous_y = false;
                             end_x--;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+
+                        x_pose = end_x+1;
+                        y_pose = end_y;
+                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                            jump = true;
+                            end_x++;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+
+
+                        x_pose = end_x;
+                        y_pose = end_y+1;
+                        if(map[x_pose][y_pose] == end_number && map[x_pose][y_pose] > 2 && !jump){
+                           jump = true;
+                           end_y++;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+                    }
+
+                }
+                else if(previous_y){
+                    x_pose = end_x-1;
+                    y_pose = end_y;
+
+                    if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump ){
+                        jump = true;
+                        end_x--;
+                        previous_x = true;
+                        previous_y = false;
+                    }
+                    else if(!jump){
+                        previous_y = false;
+                        previous_x = false;
+                    }
+
+                    x_pose = end_x+1;
+                    y_pose = end_y;
+                    if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                        jump = true;
+                        end_x++;
+                    }
+                    else if(!jump){
+                        previous_y = false;
+                        previous_x = false;
+                    }
+
+                    if(!jump){
+                        x_pose = end_x;
+                        y_pose = end_y-1;
+                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                           jump = true;
+                           previous_y = true;
+                           previous_x = false;
+                           end_y--;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+
+                        x_pose = end_x-1;
+                        y_pose = end_y;
+                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump ){
+                            jump = true;
+                            previous_x = true;
+                            previous_y = false;
+                            end_x--;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+
+                        x_pose = end_x+1;
+                        y_pose = end_y;
+                        if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                            jump = true;
+                            end_x++;
+                        }
+                        else if(!jump){
+                            previous_y = false;
+                            previous_x = false;
+                        }
+
+
+                        x_pose = end_x;
+                        y_pose = end_y+1;
+                        if(map[x_pose][y_pose] == end_number && map[x_pose][y_pose] > 2 && !jump){
+                           jump = true;
+                           end_y++;
                         }
                         else if(!jump){
                             previous_y = false;
@@ -414,39 +486,39 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
                         previous_x = false;
                     }
 
-                }
-
-                x_pose = end_x+1;
-                y_pose = end_y;
-                if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
-                    jump = true;
-                    end_x++;
-                }
-
-                x_pose = end_x;
-                y_pose = end_y+1;
-                if(map[x_pose][y_pose] == end_number && map[x_pose][y_pose] > 2 && !jump){
-                   jump = true;
-                   end_y++;
-                }
-/*
-                if(!jump){
-                    end_number++;
-                    if(end_x == start_x && end_y == start_y){
-                        map[end_x][end_y] = 200;
-                        curr_array_pose.x = end_x;
-                        curr_array_pose.y = end_y;
-                        cesta.push_back(curr_array_pose);
-                        break;
+                    x_pose = end_x+1;
+                    y_pose = end_y;
+                    if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
+                        jump = true;
+                        end_x++;
                     }
-                    continue;
-                }*/
+                    else if(!jump){
+                        previous_y = false;
+                        previous_x = false;
+                    }
+
+
+                    x_pose = end_x;
+                    y_pose = end_y+1;
+                    if(map[x_pose][y_pose] == end_number && map[x_pose][y_pose] > 2 && !jump){
+                       jump = true;
+                       end_y++;
+                    }
+                    else if(!jump){
+                        previous_y = false;
+                        previous_x = false;
+                    }
+
+                }
 
                 map[end_x][end_y] = 200;
                 curr_array_pose.x = end_x;
                 curr_array_pose.y = end_y;
                 cesta.push_back(curr_array_pose);
                 end_number--;
+
+                if (end_number == 2)
+                    map[end_x][end_y] = 201;
 
             }
 
@@ -457,6 +529,7 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
 
         //cout << start_num << endl;
         start_num++;
+
         /*for(int x=0;x < MAP_WIDTH ;x++){
             for(int y=0;y < MAP_HIGHT;y++){
                printf("%3d ", map[x][y]);

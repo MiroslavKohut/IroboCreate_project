@@ -156,6 +156,10 @@ void MainWindow::paintEvent(QPaintEvent *event)
                    painter.setBrush(Qt::red);
                  painter.drawRect(500+x*5,30+y*5,5,5);
                }
+               if(static_map->map[x][y]== 201){
+                   painter.setBrush(Qt::blue);
+                 painter.drawRect(500+x*5,30+y*5,5,5);
+               }
             }
         }
     }
