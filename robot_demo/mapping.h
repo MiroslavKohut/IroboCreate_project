@@ -62,7 +62,7 @@ protected:
     POSITION irob_current_mapping_pose;
 
 private:
-
+    bool filterPath(std::vector<POINT> &path);
     void createDynamicMap(POINT bod);
 
     //--spustenie merania v novom vlakne (vycitavanie bezi v novom vlakne. treba ho stopnut ak chceme poslat request)

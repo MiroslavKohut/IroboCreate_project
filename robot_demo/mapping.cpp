@@ -238,6 +238,8 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
     start.x = -start.x;
     end.x = -end.x;
 
+    std::vector<POINT> final_path;
+
     uint8_t start_num = 2;
     uint8_t start_x =(int)start.x/DIV_CONST;
     uint8_t start_y= (int)start.y/DIV_CONST;
@@ -298,12 +300,14 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
             map[end_x][end_y] = 201;
 
             cesta.push_back(curr_array_pose);
+            final_path.push_back(curr_array_pose);
 
             while(end_number > 2){
 
                 bool jump = false;
 
                 if(previous_x){
+
                     x_pose = end_x;
                     y_pose = end_y-1;
 
@@ -358,6 +362,7 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
 
                         x_pose = end_x+1;
                         y_pose = end_y;
+
                         if(map[x_pose][y_pose] < end_number && map[x_pose][y_pose] > 2 && !jump){
                             jump = true;
                             end_x++;
@@ -382,6 +387,7 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
 
                 }
                 else if(previous_y){
+
                     x_pose = end_x-1;
                     y_pose = end_y;
 
@@ -519,9 +525,45 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
 
                 if (end_number == 2)
                     map[end_x][end_y] = 201;
-
+                    //break;
             }
 
+            uint8_t mode=0;
+            uint8_t global_mode=0;
+
+            for (int i = 1;i<cesta.size();i++){
+
+                if(map[(int)cesta[i].x+1][(int)cesta[i].y] == 200 && map[(int)cesta[i].x-1][(int)cesta[i].y] == 200 )
+                    mode= 1;
+                if(map[(int)cesta[i].x][(int)cesta[i].y+1] == 200 && map[(int)cesta[i].x][(int)cesta[i].y-1] == 200 )
+                    mode= 2;
+                if(map[(int)cesta[i].x][(int)cesta[i].y-1] == 200 && map[(int)cesta[i].x+1][(int)cesta[i].y] == 200 ||  map[(int)cesta[i].x-1][(int)cesta[i].y] == 200 && map[(int)cesta[i].x][(int)cesta[i].y+1] == 200) //doprava
+                    mode= 3;
+                if(map[(int)cesta[i].x-1][(int)cesta[i].y] == 200 && map[(int)cesta[i].x][(int)cesta[i].y-1] == 200 ||  map[(int)cesta[i].x+1][(int)cesta[i].y] == 200 && map[(int)cesta[i].x][(int)cesta[i].y+1] == 200) //dolava
+                    mode= 4;
+               /* printf("cesta y %d ",(int)cesta[i].y);
+                printf("cesta x %d \n",(int)cesta[i].x);
+                printf(" increment %d \n",i);*/
+
+                if (global_mode != mode && i > 4){
+                   /* printf(" velkost cesty %d",cesta.size());
+                    printf(" increment %d \n",i);*/
+                    map[(int)cesta[i].x][(int)cesta[i].y] = 201;
+                    final_path.push_back(cesta[i]);
+
+                }
+                global_mode= mode;
+            }
+            curr_array_pose.x = end_x;
+            curr_array_pose.y = end_y;
+            final_path.push_back(curr_array_pose);
+
+            for (int i = 0 ; i< final_path.size();i++){
+                 printf("cesta y %d ",(int)final_path[i].y);
+                 printf("cesta x %d \n",(int)final_path[i].x);
+            }
+
+            printf("Velkost cesty %d \n",final_path.size());
             cout << "PATH FOUND" << endl;
             cout << "SIZE: " << cesta.size() << endl;
             return true;
@@ -541,7 +583,16 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
     }
 }
 
+bool Mapping::filterPath(std::vector<POINT> &path){
 
+    float k,q;
+    int size = path.size()-1;
+    for (int i = size-1; i >= 0 ; i++){
+        k = path[size].y - path[i].y / path[size].x - path[i].x;
+        q = path[size].y - k * path[size].x;
+    }
+
+}
 
 bool Mapping::clearMap(){
 
