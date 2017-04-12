@@ -56,6 +56,18 @@ private slots:
 
     void on_pushButton_8_clicked();
 
+    void on_pushButton_9_pressed();
+
+    void on_pushButton_9_released();
+
+    void on_pushButton_10_pressed();
+
+    void on_pushButton_10_released();
+
+    void on_pushButton_11_pressed();
+
+    void on_pushButton_11_released();
+
 private:
      int paintEventStatus;
     Ui::MainWindow *ui;

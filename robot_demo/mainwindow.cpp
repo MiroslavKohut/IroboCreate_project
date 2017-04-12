@@ -221,3 +221,35 @@ void MainWindow::on_pushButton_8_clicked()
 {
     robot_movemet->clearMap();
 }
+
+void MainWindow::on_pushButton_9_pressed()
+{
+    robot_movemet->robMove(100);
+}
+
+void MainWindow::on_pushButton_9_released()
+{
+    robot_movemet->robStop();
+
+}
+
+void MainWindow::on_pushButton_10_pressed()
+{
+    robot_movemet->robRotateL(100);
+
+}
+
+void MainWindow::on_pushButton_10_released()
+{
+    robot_movemet->robStop();
+}
+
+void MainWindow::on_pushButton_11_pressed()
+{
+    robot_movemet->robRotateR(100);
+}
+
+void MainWindow::on_pushButton_11_released()
+{
+    robot_movemet->robStop();
+}

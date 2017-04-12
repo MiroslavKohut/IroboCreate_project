@@ -91,21 +91,21 @@ void MovementControl::updatePose(float pose_change, float angle_change){
         //std::cout << "istance: " << dist_sum << "start" << irob_start_pose.x << std::endl;
     }
 
-    else if(Mapping::movement_state == 2 || angle_change != 0){
+    if(Mapping::movement_state == 2 || angle_change != 0){
 
-        if(this->irob_current_pose.angle>180){
+        if(this->irob_current_pose.angle >=180){
             this->irob_current_pose.angle = -180 + angle_change;
         }
-        else if(this->irob_current_pose.angle <-180){
+        else if(this->irob_current_pose.angle <=-180){
             this->irob_current_pose.angle = 180 + angle_change;
         }
         else{
             this->irob_current_pose.angle = this->irob_current_pose.angle + angle_change;
         }
-
+        dist_sum = 0;
     }
 
-    else if(Mapping::movement_state == 0 && pose_change == 0 && angle_change == 0){
+    if(Mapping::movement_state == 0 && pose_change == 0 && angle_change == 0){
 
         dist_sum = 0;
         irob_start_pose.x = this->irob_current_pose.x;

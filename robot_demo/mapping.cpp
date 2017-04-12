@@ -91,7 +91,7 @@ int Mapping::getPoints(){
             for(int i=0; i<measure.numberOfScans;i++)
             {
                 float dist = measure.Data[i].scanDistance *16+4.7;
-                if(dist > 2000)
+                if(dist > 2000 || dist<200)
                     continue;
 
                 if (measure.Data[i].scanAngle <= 90)
