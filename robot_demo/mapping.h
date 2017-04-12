@@ -22,6 +22,9 @@ private:
     /* methods */
     void setMappingStatus(bool data);
     bool getMappingStatus();
+
+    void setNavigationStatus(bool data);
+    bool getNavigationStatus();
     /* variables */
 
     rplidar lidar;
@@ -31,12 +34,14 @@ private:
 
     //thread variables
     bool mapping_run;
+    bool navigation_run;
     pthread_t mapping_thread; // handle na vlakno
     int thread_id; //id vlakna
     int thread_out;
 
 
     pthread_mutex_t mapping_status_lock;
+    pthread_mutex_t navigation_status_lock;
     pthread_mutex_t mapppin_mutex;
    /* pthread_mutex_lock (&mutexsum);
     dotstr.sum += mysum;
@@ -46,8 +51,13 @@ public:
     void loadFile();
     int getPoints();
     bool checkMovement();
+
     void startMapping();
     void stopMapping();
+
+    void startNavigation();
+    void stopNavigation();
+
     bool clearMap();
     void extract_number(std::string& line);
     bool findPath(std::vector<POINT> &cesta,POINT start, POINT end);

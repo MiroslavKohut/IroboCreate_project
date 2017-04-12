@@ -52,6 +52,24 @@ void Mapping::setMappingStatus(bool data){
     return;
 }
 
+
+bool Mapping::getNavigationStatus(){
+
+    pthread_mutex_lock (&navigation_status_lock);
+    bool data = navigation_run;
+    pthread_mutex_unlock (&navigation_status_lock);
+    return data;
+}
+
+void Mapping::setNavigationStatus(bool data){
+
+    pthread_mutex_lock (&navigation_status_lock);
+    navigation_run = data;
+    pthread_mutex_unlock (&navigation_status_lock);
+    return;
+}
+
+
 void Mapping::startMapping(){
 
     if(!getMappingStatus()){
@@ -63,10 +81,31 @@ void Mapping::startMapping(){
 
 void Mapping::stopMapping(){
 
+    setNavigationStatus(false);
     setMappingStatus(false);
     pthread_join(mapping_thread,NULL);
 
 }
+
+void Mapping::startNavigation(){
+
+    if(!getNavigationStatus()){
+        setNavigationStatus(true);
+        thread_id=pthread_create(&mapping_thread,NULL,&mappingThreadFun,(void *)this);
+    }
+    return;
+}
+
+void Mapping::stopNavigation(){
+
+    setMappingStatus(false);
+    setNavigationStatus(false);
+    pthread_join(mapping_thread,NULL);
+    return;
+}
+
+
+
 
 float degTorad(float data){
     return data * RAD_DEG;
@@ -77,6 +116,7 @@ int Mapping::getPoints(){
     float angle=0;
     POINT point;
     POSITION current_pose;
+
     while(getMappingStatus()){
 
         if (movement_state != 2){
@@ -111,20 +151,6 @@ int Mapping::getPoints(){
 
                 point.x = -(cos(degTorad(angle))* dist + current_pose.x);
                 point.y = sin(degTorad(angle))* dist + current_pose.y;
-                /*if (point.x <0 ){
-                    point.x = 0;
-                }
-                if (point.y <0){
-                    point.y = 0;
-                }
-                if (point.y > 5000){
-                    cout << point.y << endl;
-                    point.y = 4900;
-                }
-                if (point.x > 5000){
-                    cout << point.x << endl;
-                    point.x = 4900;
-                }*/
 
                 if (point.x < 0 ){
                     point.x = 0;
@@ -183,9 +209,9 @@ void Mapping::loadFile(){
                if(d[n]==','){
                    d[n]='?';
                }
-               if(d[n]=='.'){
+              /* if(d[n]=='.'){
                    d[n]=',';
-               }
+               }*/
            }
            d++;
            for (n=0;n<(c[0]-48)*2;n++){
