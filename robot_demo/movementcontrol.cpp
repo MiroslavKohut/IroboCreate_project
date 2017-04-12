@@ -24,6 +24,8 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) 
 
     this->irob_current_pose.x = -500;
     this->irob_current_pose.y = 500;
+    this->irob_start_pose.x = -500;
+    this->irob_start_pose.y = -500;
 
     speed_up=0;
     pos_reach=true;
@@ -103,6 +105,8 @@ void MovementControl::updatePose(float pose_change, float angle_change){
             this->irob_current_pose.angle = this->irob_current_pose.angle + angle_change;
         }
         dist_sum = 0;
+        irob_start_pose.x = this->irob_current_pose.x;
+        irob_start_pose.y = this->irob_current_pose.y;
     }
 
     if(Mapping::movement_state == 0 && pose_change == 0 && angle_change == 0){
