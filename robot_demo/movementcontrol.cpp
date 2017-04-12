@@ -73,7 +73,7 @@ void MovementControl::updatePose(float pose_change, float angle_change){
     float angle=0;
 
     //todo teting of remake switch statement to if statement
-    if(Mapping::movement_state == 1 || pose_change > 0){
+    if(Mapping::movement_state == 1 || pose_change != 0){
 
         if (this->irob_current_pose.angle  <= 90)
             angle = abs(this->irob_current_pose.angle  - 90);
@@ -91,13 +91,21 @@ void MovementControl::updatePose(float pose_change, float angle_change){
         //std::cout << "istance: " << dist_sum << "start" << irob_start_pose.x << std::endl;
     }
 
-    if(Mapping::movement_state == 2 || angle_change > 0){
+    else if(Mapping::movement_state == 2 || angle_change != 0){
 
-        this->irob_current_pose.angle = this->irob_current_pose.angle + angle_change;
+        if(this->irob_current_pose.angle>180){
+            this->irob_current_pose.angle = -180 + angle_change;
+        }
+        else if(this->irob_current_pose.angle <-180){
+            this->irob_current_pose.angle = 180 + angle_change;
+        }
+        else{
+            this->irob_current_pose.angle = this->irob_current_pose.angle + angle_change;
+        }
 
     }
 
-    if(Mapping::movement_state == 0 && pose_change == 0 && angle_change == 0){
+    else if(Mapping::movement_state == 0 && pose_change == 0 && angle_change == 0){
 
         dist_sum = 0;
         irob_start_pose.x = this->irob_current_pose.x;
