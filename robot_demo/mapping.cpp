@@ -154,6 +154,7 @@ void Mapping::createDynamicMap(POINT bod){
 
 
 }
+
 void Mapping::loadFile(){
 
 

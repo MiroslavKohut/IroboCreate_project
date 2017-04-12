@@ -46,11 +46,11 @@ float MovementControl::radTodeg(float data){
     return data * DEG_RAD;
 }
 
-
 float MovementControl::robRotateR(DWORD speed){
     Mapping::movement_state = 2;
     this->robot->move(-speed,speed);
 }
+
 float MovementControl::robRotateL(DWORD speed){
     Mapping::movement_state = 2;
     this->robot->move(speed,-speed);
@@ -67,8 +67,6 @@ void MovementControl::robStop(){
     Mapping::movement_state = 0;
     this->robot->move(0,0);
 }
-
-
 
 void MovementControl::updatePose(float pose_change, float angle_change){
 
@@ -131,8 +129,6 @@ void MovementControl::moveToNewPose(float speed){
     }
 
 }
-
-
 
 /*Private methods*/
 float MovementControl::comuteAngle(){
@@ -245,6 +241,7 @@ bool MovementControl::pidControlRotation(){
         return false;
     }
 }
+
 bool MovementControl::pidControlTranslation(){
 
     float cur_speed;
