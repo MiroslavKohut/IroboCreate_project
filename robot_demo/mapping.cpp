@@ -217,8 +217,11 @@ inline void Mapping::navigationLoop(){
     float angle=0;
     POINT point;
     POSITION current_pose;
+    NAVIGATION_DATA data_navigacie;
+    NAVIGATION_OUTPUT vystup_navigacie;
 
     while(getNavigationStatus()){
+        data_navigacie = getNavigationData();
 
         if (movement_state != 2){
 
@@ -227,7 +230,8 @@ inline void Mapping::navigationLoop(){
             pthread_mutex_lock (&current_pose_lock);
             current_pose = irob_current_mapping_pose;
             pthread_mutex_unlock (&current_pose_lock);
-
+            vystup_navigacie.everything_blocked=false;
+            vystup_navigacie.clear_path_to_goal=true;
             angles.begin();
 
             for(int i=0; i<measure.numberOfScans;i++)
@@ -250,12 +254,17 @@ inline void Mapping::navigationLoop(){
 
 
                 angles.push_back(measure.Data[i].scanAngle);
+
+
             }
         }
 
     //TODO TEST DATA FROM thread in points vector;
     std::cout << "Navigujem" << std::endl;
+    setNavigationOutput(vystup_navigacie);
     usleep(100000);
+
+
     }
     return;
 }

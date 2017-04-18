@@ -140,18 +140,31 @@ void MovementControl::moveToNewPose(float speed){
     if (!getNavigationStatus())
         Mapping::startNavigation();
 
+    NAVIGATION_OUTPUT output = Mapping::getNavigationOutput();
+    while (!output.data_ready){
+       output = Mapping::getNavigationOutput();
+    }
 
 
-
-    if(ang_reach){
-        if(this->pidControlTranslation()){
-            setPosReach(true);
-        }
+    if (output.everything_blocked){
+        //TODO POUZI CLOSE BUG
     }
     else{
-         this->pidControlRotation();
-    }
+        if(output.new_angle){
 
+        }
+        else if (output.clear_path_to_goal){
+
+            if(ang_reach){
+                if(this->pidControlTranslation()){
+                    setPosReach(true);
+                }
+            }
+            else{
+                 this->pidControlRotation();
+            }
+        }
+    }
 }
 
 float MovementControl::comuteGoalAngle(){
