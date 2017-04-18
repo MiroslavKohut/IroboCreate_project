@@ -29,12 +29,50 @@ Mapping::Mapping(bool with_scan)
     irob_current_mapping_pose = POSITION();
     map.resize(MAP_WIDTH,vector<uint8_t>(MAP_HIGHT,0));
     mapping_run = false;
+    navigation_data = NAVIGATION_DATA();
+    navigation_output = NAVIGATION_OUTPUT();
+    navigation_output.data_ready = false;
 }
 
 Mapping::~Mapping()
 {
     //pthread_join(mapping_thread,NULL);
 }
+
+
+void Mapping::setNavigationOutput(NAVIGATION_OUTPUT data){
+
+    pthread_mutex_lock (&navigation_data_lock);
+    this->navigation_output = data;
+    pthread_mutex_unlock (&navigation_data_lock);
+    return;
+}
+
+NAVIGATION_OUTPUT Mapping::getNavigationOutput(){
+
+    pthread_mutex_lock (&navigation_data_lock);
+    NAVIGATION_OUTPUT data = navigation_output;
+    pthread_mutex_unlock (&navigation_data_lock);
+    return data;
+}
+
+
+void Mapping::setNavigationData(NAVIGATION_DATA data){
+
+    pthread_mutex_lock (&navigation_data_lock);
+    this->navigation_data = data;
+    pthread_mutex_unlock (&navigation_data_lock);
+    return;
+}
+
+NAVIGATION_DATA Mapping::getNavigationData(){
+
+    pthread_mutex_lock (&navigation_data_lock);
+    NAVIGATION_DATA  data = navigation_data;
+    pthread_mutex_unlock (&navigation_data_lock);
+    return data;
+}
+
 
 bool Mapping::getMappingStatus(){
 
@@ -73,6 +111,7 @@ void Mapping::setNavigationStatus(bool data){
 void Mapping::startMapping(){
 
     if(!getMappingStatus()){
+        setMappingStatus(false);
         setMappingStatus(true);
         thread_id=pthread_create(&mapping_thread,NULL,&mappingThreadFun,(void *)this);
     }
@@ -90,6 +129,7 @@ void Mapping::stopMapping(){
 void Mapping::startNavigation(){
 
     if(!getNavigationStatus()){
+        setNavigationStatus(false);
         setNavigationStatus(true);
         thread_id=pthread_create(&mapping_thread,NULL,&mappingThreadFun,(void *)this);
     }
@@ -111,8 +151,8 @@ float degTorad(float data){
     return data * RAD_DEG;
 }
 
-int Mapping::getPoints(){
-    
+inline void Mapping::mappingLoop(){
+
     float angle=0;
     POINT point;
     POSITION current_pose;
@@ -168,6 +208,66 @@ int Mapping::getPoints(){
     std::cout << "zmapoval som" << std::endl;
     usleep(1000000);
     }
+    return;
+}
+
+inline void Mapping::navigationLoop(){
+
+
+    float angle=0;
+    POINT point;
+    POSITION current_pose;
+
+    while(getNavigationStatus()){
+
+        if (movement_state != 2){
+
+            LaserMeasurement measure=lidar.getMeasurement();
+
+            pthread_mutex_lock (&current_pose_lock);
+            current_pose = irob_current_mapping_pose;
+            pthread_mutex_unlock (&current_pose_lock);
+
+            angles.begin();
+
+            for(int i=0; i<measure.numberOfScans;i++)
+            {
+                // pri vzd 1500 a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
+
+                float dist = measure.Data[i].scanDistance *16+4.7;
+                if(dist > 1500 || dist<200)
+                    continue;
+
+                if (measure.Data[i].scanAngle <= 90)
+                    angle = fabs(measure.Data[i].scanAngle - 90);
+                else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
+                    angle = 450 - measure.Data[i].scanAngle;
+
+                }
+
+                //point.x = -(cos(degTorad(angle))* dist + current_pose.x);
+                //point.y = sin(degTorad(angle))* dist + current_pose.y;
+
+
+                angles.push_back(measure.Data[i].scanAngle);
+            }
+        }
+
+    //TODO TEST DATA FROM thread in points vector;
+    std::cout << "Navigujem" << std::endl;
+    usleep(100000);
+    }
+    return;
+}
+
+int Mapping::getPoints(){
+
+    //lool controlling mapping of the robot
+    Mapping::mappingLoop();
+
+    // loop controlling navigation of the robot
+    Mapping::navigationLoop();
+
     return 0;
 
 }

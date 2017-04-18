@@ -16,4 +16,21 @@ typedef struct POSITION{
     float angle;
 }POSITION;
 
+typedef struct NAVIGATION_DATA{
+
+    POSITION curent_position;
+    float goal_angle;
+    POSITION goal_point;
+
+}NAVIGATION_DATA;
+
+typedef struct NAVIGATION_OUTPUT{
+
+    float new_angle;
+    bool data_ready;
+    bool clear_path_to_goal;
+    bool everything_blocked;
+
+}NAVIGATION_OUTPUT;
+
 #endif // STRUCTURES_H

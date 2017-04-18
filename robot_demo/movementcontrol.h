@@ -51,6 +51,7 @@ private:
     bool pidControlRotation();
     float comuteAngle();
     float comuteTranslation();
+    float comuteGoalAngle();
 };
 
 

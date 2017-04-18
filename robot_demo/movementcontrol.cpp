@@ -31,8 +31,6 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) 
     pos_reach=true;
     ang_reach=true;
     dist_sum = 0;
-    target_angle=0;
-
 }
 
 MovementControl::~MovementControl()
@@ -131,6 +129,20 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 void MovementControl::moveToNewPose(float speed){
 
     this->irob_desired_pose = new_pose;
+
+    // TODO CHECK IF NEW POSE IS REACHABLE IF NOT GENERATE NEW ANGLE AND DIRECTION AND REMEBER GOAL POSE
+
+    NAVIGATION_DATA data;
+    data.goal_angle= this->comuteGoalAngle();
+    data.goal_point = this->irob_desired_pose;
+    Mapping::setNavigationData(data);
+
+    if (!getNavigationStatus())
+        Mapping::startNavigation();
+
+
+
+
     if(ang_reach){
         if(this->pidControlTranslation()){
             setPosReach(true);
@@ -142,8 +154,42 @@ void MovementControl::moveToNewPose(float speed){
 
 }
 
+float MovementControl::comuteGoalAngle(){
+
+   float x =  this->irob_desired_pose.x - this->irob_current_pose.x;
+   float y =  this->irob_desired_pose.y - this->irob_current_pose.y;
+
+   float angle_from_y;
+
+   if(x== 0 & y == 0){
+      angle_from_y = 0;
+   }
+   else if (y >= 0){
+       angle_from_y = 90 - radTodeg(atan2(y,x));
+
+       //std::cout << "ATAN: " << radTodeg(atan2(y,x))<< std::endl;
+   }
+   else if (y < 0 && x >= 0){
+       angle_from_y = fabs(-90 + radTodeg(atan2(y,x)));
+   }
+   else if(y < 0 && x < 0){
+       angle_from_y = - 90 - (180 + radTodeg(atan2(y,x)));
+   }
+
+   if (angle_from_y > 180){
+       angle_from_y = -360+ angle_from_y;
+   }
+   else if(angle_from_y < -180){
+       angle_from_y = 360 + angle_from_y;
+   }
+
+   return angle_from_y;
+}
+
+
 /*Private methods*/
 float MovementControl::comuteAngle(){
+
 
    float x =  this->irob_desired_pose.x - this->irob_current_pose.x;
    float y =  this->irob_desired_pose.y - this->irob_current_pose.y;
@@ -249,7 +295,6 @@ bool MovementControl::pidControlRotation(){
             this->robRotateL(cur_speed);
 
         }
-       //target_angle=this->irob_current_pose.angle;
         return false;
     }
 }

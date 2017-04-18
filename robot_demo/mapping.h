@@ -19,16 +19,11 @@ public:
     ~Mapping();
 
 private:
-    /* methods */
-    void setMappingStatus(bool data);
-    bool getMappingStatus();
-
-    void setNavigationStatus(bool data);
-    bool getNavigationStatus();
     /* variables */
 
     rplidar lidar;
     std::vector<POINT> points;
+    std::vector<float> angles;
     POINT closest_point;
     float closest_distance;
 
@@ -38,16 +33,21 @@ private:
     pthread_t mapping_thread; // handle na vlakno
     int thread_id; //id vlakna
     int thread_out;
+    NAVIGATION_DATA navigation_data;
+    NAVIGATION_OUTPUT navigation_output;
 
 
     pthread_mutex_t mapping_status_lock;
     pthread_mutex_t navigation_status_lock;
+    pthread_mutex_t navigation_data_lock;
     pthread_mutex_t mapppin_mutex;
    /* pthread_mutex_lock (&mutexsum);
     dotstr.sum += mysum;
     pthread_mutex_unlock (&mutexsum);*/
 
 public:
+       /* methods */
+
     void loadFile();
     int getPoints();
     bool checkMovement();
@@ -57,6 +57,13 @@ public:
 
     void startNavigation();
     void stopNavigation();
+
+    void setMappingStatus(bool data);
+    bool getMappingStatus();
+
+    void setNavigationStatus(bool data);
+    bool getNavigationStatus();
+
 
     bool clearMap();
     void extract_number(std::string& line);
@@ -71,9 +78,18 @@ protected:
 
     POSITION irob_current_mapping_pose;
 
+    void setNavigationOutput(NAVIGATION_OUTPUT data);
+    NAVIGATION_OUTPUT getNavigationOutput();
+    void setNavigationData(NAVIGATION_DATA data);
+    NAVIGATION_DATA getNavigationData();
+
 private:
+
     bool filterPath(std::vector<POINT> &path);
     void createDynamicMap(POINT bod);
+    void mappingLoop();
+    void navigationLoop();
+
 
     //--spustenie merania v novom vlakne (vycitavanie bezi v novom vlakne. treba ho stopnut ak chceme poslat request)
     static void *mappingThreadFun(void *param)
