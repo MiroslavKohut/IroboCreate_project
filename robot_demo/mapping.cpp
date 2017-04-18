@@ -212,8 +212,11 @@ inline void Mapping::mappingLoop(){
 }
 
 inline void Mapping::navigationLoop(){
-
-
+    float target_angle;
+    int ccw_limit;
+    int cw_limit;
+    bool cw_overflow=false;
+    bool ccw_overflow=false;
     float angle=0;
     POINT point;
     POSITION current_pose;
@@ -230,25 +233,108 @@ inline void Mapping::navigationLoop(){
             pthread_mutex_lock (&current_pose_lock);
             current_pose = irob_current_mapping_pose;
             pthread_mutex_unlock (&current_pose_lock);
-            vystup_navigacie.everything_blocked=false;
+            vystup_navigacie.everything_blocked=true;
             vystup_navigacie.clear_path_to_goal=true;
             angles.begin();
+            if(data_navigacie.goal_angle<0)
+                target_angle=data_navigacie.goal_angle+360;
+            else
+                target_angle=data_navigacie.goal_angle;
+            ccw_limit=target_angle-45;
+            cw_limit=target_angle+45;
+
+            if (ccw_limit<0){
+                ccw_limit=360+ccw_limit;
+                ccw_overflow=true;
+            }
+            if (cw_limit>360){
+                cw_limit=cw_limit-360;
+                cw_overflow=true;
+            }
+
 
             for(int i=0; i<measure.numberOfScans;i++)
             {
                 // pri vzd 1500 a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
 
                 float dist = measure.Data[i].scanDistance *16+4.7;
-                if(dist > 1500 || dist<200)
+                if(dist<200)
                     continue;
+                if(ccw_limit<cw_limit && (measure.Data[i].scanAngle>ccw_limit || measure.Data[i].scanAngle<cw_limit) ){
+                    if(measure.Data[i].scanAngle>target_angle){
+                        if(200*sin(degTorad(measure.Data[i].scanAngle-target_angle))<dist){
+                            vystup_navigacie.clear_path_to_goal=false;
+                    }
+                        else {
+                            //KED NIE JE PREKAZKA
+                        }
 
-                if (measure.Data[i].scanAngle <= 90)
+                    }
+                    if(measure.Data[i].scanAngle<target_angle){
+                        if(200*sin(degTorad(abs(measure.Data[i].scanAngle-target_angle)))<dist){
+                            vystup_navigacie.clear_path_to_goal=false;
+                    }
+                        else {
+                            //KED NIE JE PREKAZKA
+                        }
+
+                    }
+                }
+                if(ccw_limit>cw_limit && ((measure.Data[i].scanAngle>ccw_limit && measure.Data[i].scanAngle<360)|| (measure.Data[i].scanAngle>0 && measure.Data[i].scanAngle<cw_limit))){
+                    float temp=measure.Data[i].scanAngle-target_angle;
+                    if(temp>0){
+                        if(200*sin(degTorad(temp))<dist){
+                            vystup_navigacie.clear_path_to_goal=false;
+                    }
+                        else {
+                            //KED NIE JE PREKAZKA -OPTIONAL
+                        }
+
+                    }
+                    if(temp<0){
+                        if(200*sin(degTorad(abs(temp)))<dist){
+                            vystup_navigacie.clear_path_to_goal=false;
+                    }
+                        else {
+                            //KED NIE JE PREKAZKA -OPTIONAL
+                        }
+
+                    }
+
+                }
+
+                float temp=measure.Data[i].scanAngle-target_angle;
+                if((temp>-90 || temp<90)){ //PREDNA POLKRUZNICA
+
+                    if(temp>0){
+                        if(200*sin(degTorad(temp))<dist){
+                            //JE PREKAZKA - OK
+                    }
+                        else {
+                          vystup_navigacie.everything_blocked=false;
+                        }
+
+                    }
+                    if(temp<0){
+                        if(200*sin(degTorad(abs(temp)))<dist){
+                             //JE PREKAZKA - OK
+                    }
+                        else {
+                         vystup_navigacie.everything_blocked=false;
+                        }
+
+                    }
+                }
+
+
+
+                /*if (measure.Data[i].scanAngle <= 90)
                     angle = fabs(measure.Data[i].scanAngle - 90);
                 else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
                     angle = 450 - measure.Data[i].scanAngle;
 
                 }
-
+                */
                 //point.x = -(cos(degTorad(angle))* dist + current_pose.x);
                 //point.y = sin(degTorad(angle))* dist + current_pose.y;
 
@@ -257,10 +343,90 @@ inline void Mapping::navigationLoop(){
 
 
             }
+            if(vystup_navigacie.clear_path_to_goal==false){
+                float temp_target;
+                int min_angle=360;
+                for (int l=0;l<360;l++){
+                    bool temp_free_path=true;
+                    if(data_navigacie.goal_angle<0)
+                        target_angle=data_navigacie.goal_angle+360+l;
+                    else
+                        target_angle=data_navigacie.goal_angle+l;
+                    ccw_limit=temp_target-45;
+                    cw_limit=temp_target-45;
+
+                    if (ccw_limit<0){
+                        ccw_limit=360+ccw_limit;
+                        ccw_overflow=true;
+                    }
+                    if (cw_limit>360){
+                        cw_limit=cw_limit-360;
+                        cw_overflow=true;
+                    }
+                    for(int i=0; i<measure.numberOfScans;i++)
+                    {
+                        // pri vzd 1500 a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
+
+                        float dist = measure.Data[i].scanDistance *16+4.7;
+                        if(dist<200)
+                            continue;
+                        if(ccw_limit<cw_limit && (measure.Data[i].scanAngle>ccw_limit || measure.Data[i].scanAngle<cw_limit) ){
+                            if(measure.Data[i].scanAngle>temp_target){
+                                if(200*sin(degTorad(measure.Data[i].scanAngle-temp_target))<dist){
+                                    temp_free_path=false;
+                            }
+                                else {
+                                    //KED NIE JE PREKAZKA
+                                }
+
+                            }
+                            if(measure.Data[i].scanAngle<temp_target){
+                                if(200*sin(degTorad(abs(measure.Data[i].scanAngle-temp_target)))<dist){
+                                    temp_free_path=false;
+                            }
+                                else {
+                                    //KED NIE JE PREKAZKA
+                                }
+
+                            }
+                        }
+                        if(ccw_limit>cw_limit && ((measure.Data[i].scanAngle>ccw_limit && measure.Data[i].scanAngle<360)|| (measure.Data[i].scanAngle>0 && measure.Data[i].scanAngle<cw_limit))){
+                            float temp=measure.Data[i].scanAngle-temp_target;
+                            if(temp>0){
+                                if(200*sin(degTorad(temp))<dist){
+                                    temp_free_path=false;
+                            }
+                                else {
+                                    //KED NIE JE PREKAZKA -OPTIONAL
+                                }
+
+                            }
+                            if(temp<0){
+                                if(200*sin(degTorad(abs(temp)))<dist){
+                                    temp_free_path=false;
+                            }
+                                else {
+                                    //KED NIE JE PREKAZKA -OPTIONAL
+                                }
+
+                            }
+
+                        }
+
+                }
+                if(abs(temp_target-target_angle)<min_angle && temp_free_path==true){
+                    min_angle=abs(temp_target-target_angle);
+                    vystup_navigacie.new_angle=temp_target;
+                }
+            }
         }
+             vystup_navigacie.data_ready=true;
+    }
+        ////////////////////////////HLADANIE NOVEHO UHLA///////////////
 
     //TODO TEST DATA FROM thread in points vector;
     std::cout << "Navigujem" << std::endl;
+
     setNavigationOutput(vystup_navigacie);
     usleep(100000);
 
@@ -738,6 +904,3 @@ bool Mapping::clearMap(){
          }
     }
 }
-
-
-
