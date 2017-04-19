@@ -141,28 +141,34 @@ void MovementControl::moveToNewPose(float speed){
         Mapping::startNavigation();
 
     NAVIGATION_OUTPUT output = Mapping::getNavigationOutput();
+
     while (!output.data_ready){
        output = Mapping::getNavigationOutput();
+       std::cout << "data not ready" <<std::endl;
+
+
     }
 
 
     if (output.everything_blocked){
+             std::cout << "everything blocked" <<std::endl;
         //TODO POUZI CLOSE BUG
     }
     else{
         if(output.new_angle){
-
+             std::cout << "closest clear angle" << output.new_angle<< std::endl;
         }
         else if (output.clear_path_to_goal){
+             std::cout << "path clear" <<std::endl;
 
-            if(ang_reach){
+            /*if(ang_reach){
                 if(this->pidControlTranslation()){
                     setPosReach(true);
                 }
             }
             else{
                  this->pidControlRotation();
-            }
+            }*/
         }
     }
 }

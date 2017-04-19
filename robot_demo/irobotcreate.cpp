@@ -91,7 +91,7 @@ void iRobotCreate::doSensorReadings(void *param, ProcessDataFromCreate callback)
         int k=ReceivePacketFromCreate(sensor_struct,0x06);
         if(k==0)
         {
-            if((sensor_struct.Voltage<14000) && parentwidget!=0)
+            if((sensor_struct.Voltage<13000) && parentwidget!=0)
             {
                 ((MainWindow*)parentwidget)->forMsgBox();
             }

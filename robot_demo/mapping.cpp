@@ -29,6 +29,7 @@ Mapping::Mapping(bool with_scan)
     irob_current_mapping_pose = POSITION();
     map.resize(MAP_WIDTH,vector<uint8_t>(MAP_HIGHT,0));
     mapping_run = false;
+    navigation_run = false;
     navigation_data = NAVIGATION_DATA();
     navigation_output = NAVIGATION_OUTPUT();
     navigation_output.data_ready = false;
@@ -233,13 +234,15 @@ inline void Mapping::navigationLoop(){
             pthread_mutex_lock (&current_pose_lock);
             current_pose = irob_current_mapping_pose;
             pthread_mutex_unlock (&current_pose_lock);
+
             vystup_navigacie.everything_blocked=true;
             vystup_navigacie.clear_path_to_goal=true;
-            angles.begin();
+
             if(data_navigacie.goal_angle<0)
                 target_angle=data_navigacie.goal_angle+360;
             else
                 target_angle=data_navigacie.goal_angle;
+
             ccw_limit=target_angle-45;
             cw_limit=target_angle+45;
 
@@ -260,9 +263,9 @@ inline void Mapping::navigationLoop(){
                 float dist = measure.Data[i].scanDistance *16+4.7;
                 if(dist<200)
                     continue;
-                if(ccw_limit<cw_limit && (measure.Data[i].scanAngle>ccw_limit || measure.Data[i].scanAngle<cw_limit) ){
+                if(ccw_limit<cw_limit && (measure.Data[i].scanAngle>ccw_limit && measure.Data[i].scanAngle<cw_limit) ){
                     if(measure.Data[i].scanAngle>target_angle){
-                        if(200*sin(degTorad(measure.Data[i].scanAngle-target_angle))<dist){
+                        if(200/sin(degTorad(measure.Data[i].scanAngle-target_angle))>dist){
                             vystup_navigacie.clear_path_to_goal=false;
                     }
                         else {
@@ -271,7 +274,7 @@ inline void Mapping::navigationLoop(){
 
                     }
                     if(measure.Data[i].scanAngle<target_angle){
-                        if(200*sin(degTorad(abs(measure.Data[i].scanAngle-target_angle)))<dist){
+                        if(200/sin(degTorad(fabs(measure.Data[i].scanAngle-target_angle)))>dist){
                             vystup_navigacie.clear_path_to_goal=false;
                     }
                         else {
@@ -283,7 +286,7 @@ inline void Mapping::navigationLoop(){
                 if(ccw_limit>cw_limit && ((measure.Data[i].scanAngle>ccw_limit && measure.Data[i].scanAngle<360)|| (measure.Data[i].scanAngle>0 && measure.Data[i].scanAngle<cw_limit))){
                     float temp=measure.Data[i].scanAngle-target_angle;
                     if(temp>0){
-                        if(200*sin(degTorad(temp))<dist){
+                        if(200/sin(degTorad(temp))>dist){
                             vystup_navigacie.clear_path_to_goal=false;
                     }
                         else {
@@ -292,7 +295,7 @@ inline void Mapping::navigationLoop(){
 
                     }
                     if(temp<0){
-                        if(200*sin(degTorad(abs(temp)))<dist){
+                        if(200/sin(degTorad(fabs(temp)))>dist){
                             vystup_navigacie.clear_path_to_goal=false;
                     }
                         else {
@@ -304,10 +307,11 @@ inline void Mapping::navigationLoop(){
                 }
 
                 float temp=measure.Data[i].scanAngle-target_angle;
-                if((temp>-90 || temp<90)){ //PREDNA POLKRUZNICA
+
+                if((temp>-90 && temp<90)){ //PREDNA POLKRUZNICA
 
                     if(temp>0){
-                        if(200*sin(degTorad(temp))<dist){
+                        if(200/sin(degTorad(temp))>dist){
                             //JE PREKAZKA - OK
                     }
                         else {
@@ -316,7 +320,7 @@ inline void Mapping::navigationLoop(){
 
                     }
                     if(temp<0){
-                        if(200*sin(degTorad(abs(temp)))<dist){
+                        if(200/sin(degTorad(fabs(temp)))>dist){
                              //JE PREKAZKA - OK
                     }
                         else {
@@ -329,7 +333,7 @@ inline void Mapping::navigationLoop(){
 
 
                 /*if (measure.Data[i].scanAngle <= 90)
-                    angle = fabs(measure.Data[i].scanAngle - 90);
+                    angle = ffabs(measure.Data[i].scanAngle - 90);
                 else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
                     angle = 450 - measure.Data[i].scanAngle;
 
@@ -370,9 +374,9 @@ inline void Mapping::navigationLoop(){
                         float dist = measure.Data[i].scanDistance *16+4.7;
                         if(dist<200)
                             continue;
-                        if(ccw_limit<cw_limit && (measure.Data[i].scanAngle>ccw_limit || measure.Data[i].scanAngle<cw_limit) ){
+                        if(ccw_limit<cw_limit && (measure.Data[i].scanAngle>ccw_limit && measure.Data[i].scanAngle<cw_limit) ){
                             if(measure.Data[i].scanAngle>temp_target){
-                                if(200*sin(degTorad(measure.Data[i].scanAngle-temp_target))<dist){
+                                if(200/sin(degTorad(measure.Data[i].scanAngle-temp_target))>dist){
                                     temp_free_path=false;
                             }
                                 else {
@@ -381,7 +385,7 @@ inline void Mapping::navigationLoop(){
 
                             }
                             if(measure.Data[i].scanAngle<temp_target){
-                                if(200*sin(degTorad(abs(measure.Data[i].scanAngle-temp_target)))<dist){
+                                if(200/sin(degTorad(fabs(measure.Data[i].scanAngle-temp_target)))>dist){
                                     temp_free_path=false;
                             }
                                 else {
@@ -393,7 +397,7 @@ inline void Mapping::navigationLoop(){
                         if(ccw_limit>cw_limit && ((measure.Data[i].scanAngle>ccw_limit && measure.Data[i].scanAngle<360)|| (measure.Data[i].scanAngle>0 && measure.Data[i].scanAngle<cw_limit))){
                             float temp=measure.Data[i].scanAngle-temp_target;
                             if(temp>0){
-                                if(200*sin(degTorad(temp))<dist){
+                                if(200/sin(degTorad(temp))>dist){
                                     temp_free_path=false;
                             }
                                 else {
@@ -402,7 +406,7 @@ inline void Mapping::navigationLoop(){
 
                             }
                             if(temp<0){
-                                if(200*sin(degTorad(abs(temp)))<dist){
+                                if(200/sin(degTorad(fabs(temp)))>dist){
                                     temp_free_path=false;
                             }
                                 else {
@@ -414,8 +418,8 @@ inline void Mapping::navigationLoop(){
                         }
 
                 }
-                if(abs(temp_target-target_angle)<min_angle && temp_free_path==true){
-                    min_angle=abs(temp_target-target_angle);
+                if(fabs(temp_target-target_angle)<min_angle && temp_free_path==true){
+                    min_angle=fabs(temp_target-target_angle);
                     vystup_navigacie.new_angle=temp_target;
                 }
             }
@@ -429,9 +433,9 @@ inline void Mapping::navigationLoop(){
 
     setNavigationOutput(vystup_navigacie);
     usleep(100000);
-
-
     }
+    vystup_navigacie.data_ready=false;
+    setNavigationOutput(vystup_navigacie);
     return;
 }
 
