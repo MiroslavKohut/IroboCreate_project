@@ -243,27 +243,16 @@ inline void Mapping::navigationLoop(){
             else
                 target_angle=data_navigacie.goal_angle;
 
-            ccw_limit=target_angle-45;
-            cw_limit=target_angle+45;
-
-            if (ccw_limit<0){
-                ccw_limit=360+ccw_limit;
-                ccw_overflow=true;
-            }
-            if (cw_limit>360){
-                cw_limit=cw_limit-360;
-                cw_overflow=true;
-            }
 
 
             for(int i=0; i<measure.numberOfScans;i++)
-            {
+            {  float temp=measure.Data[i].scanAngle-target_angle;
                 // pri vzd 1500 a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
 
                 float dist = measure.Data[i].scanDistance *16+4.7;
                 if(dist<200)
                     continue;
-                if(ccw_limit<cw_limit && (measure.Data[i].scanAngle>ccw_limit && measure.Data[i].scanAngle<cw_limit) ){
+                if(temp>-45 && temp<45){
                     if(measure.Data[i].scanAngle>target_angle){
                         if(200/sin(degTorad(measure.Data[i].scanAngle-target_angle))>dist){
                             vystup_navigacie.clear_path_to_goal=false;
@@ -283,30 +272,9 @@ inline void Mapping::navigationLoop(){
 
                     }
                 }
-                if(ccw_limit>cw_limit && ((measure.Data[i].scanAngle>ccw_limit && measure.Data[i].scanAngle<360)|| (measure.Data[i].scanAngle>0 && measure.Data[i].scanAngle<cw_limit))){
-                    float temp=measure.Data[i].scanAngle-target_angle;
-                    if(temp>0){
-                        if(200/sin(degTorad(temp))>dist){
-                            vystup_navigacie.clear_path_to_goal=false;
-                    }
-                        else {
-                            //KED NIE JE PREKAZKA -OPTIONAL
-                        }
 
-                    }
-                    if(temp<0){
-                        if(200/sin(degTorad(fabs(temp)))>dist){
-                            vystup_navigacie.clear_path_to_goal=false;
-                    }
-                        else {
-                            //KED NIE JE PREKAZKA -OPTIONAL
-                        }
 
-                    }
-
-                }
-
-                float temp=measure.Data[i].scanAngle-target_angle;
+                //float temp=measure.Data[i].scanAngle-target_angle;
 
                 if((temp>-90 && temp<90)){ //PREDNA POLKRUZNICA
 
