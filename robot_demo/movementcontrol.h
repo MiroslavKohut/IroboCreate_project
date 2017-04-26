@@ -17,11 +17,14 @@ public:
     void setPosAngle(bool ang_reach_);
     float degTorad(float data);
     float radTodeg(float data);
-
+    void setMovementStart(bool stat);
+    bool getMovementStart();
     float robRotateR(DWORD speed);
     float robRotateL(DWORD speed);
     float robMove(DWORD speed);
     void robStop();
+
+    bool movementStart;
 
     POSITION new_pose;
     POSITION irob_current_pose;

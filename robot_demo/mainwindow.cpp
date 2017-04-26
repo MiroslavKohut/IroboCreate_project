@@ -75,6 +75,7 @@ void MainWindow::on_pushButton_2_clicked()
         robot_movemet->new_pose.angle = 0;
         robot_movemet->setPosReach(false);
         robot_movemet->setPosAngle(false);
+        robot_movemet->setMovementStart(true);
     }
     else{
 
@@ -91,7 +92,9 @@ void MainWindow::on_pushButton_3_clicked()
     else{
     robot_movemet->setPosReach(true);
     robot_movemet->setPosAngle(true);
+    robot_movemet->setMovementStart(false);
     robot_movemet->robStop();
+
     }
 }
 

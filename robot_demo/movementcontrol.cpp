@@ -31,6 +31,7 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) 
     pos_reach=true;
     ang_reach=true;
     dist_sum = 0;
+    movementStart=false;
 }
 
 MovementControl::~MovementControl()
@@ -129,46 +130,47 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 void MovementControl::moveToNewPose(float speed){
 
     this->irob_desired_pose = new_pose;
+    if(getMovementStart()){
+        // TODO CHECK IF NEW POSE IS REACHABLE IF NOT GENERATE NEW ANGLE AND DIRECTION AND REMEBER GOAL POSE
 
-    // TODO CHECK IF NEW POSE IS REACHABLE IF NOT GENERATE NEW ANGLE AND DIRECTION AND REMEBER GOAL POSE
+        NAVIGATION_DATA data;
+        data.goal_angle= this->comuteGoalAngle();
+        data.goal_point = this->irob_desired_pose;
+        Mapping::setNavigationData(data);
 
-    NAVIGATION_DATA data;
-    data.goal_angle= this->comuteGoalAngle();
-    data.goal_point = this->irob_desired_pose;
-    Mapping::setNavigationData(data);
+        if (!getNavigationStatus())
+            Mapping::startNavigation();
 
-    if (!getNavigationStatus())
-        Mapping::startNavigation();
+        NAVIGATION_OUTPUT output = Mapping::getNavigationOutput();
 
-    NAVIGATION_OUTPUT output = Mapping::getNavigationOutput();
-
-    while (!output.data_ready){
-       output = Mapping::getNavigationOutput();
-       std::cout << "data not ready" <<std::endl;
-
-
-    }
+        while (!output.data_ready){
+           output = Mapping::getNavigationOutput();
+           std::cout << "data not ready" <<std::endl;
 
 
-    if (output.everything_blocked){
-             std::cout << "everything blocked" <<std::endl;
-        //TODO POUZI CLOSE BUG
-    }
-    else{
-        if(output.new_angle){
-             std::cout << "closest clear angle" << output.new_angle<< std::endl;
         }
-        else if (output.clear_path_to_goal){
-             std::cout << "path clear" <<std::endl;
 
-            /*if(ang_reach){
-                if(this->pidControlTranslation()){
-                    setPosReach(true);
-                }
+
+        if (output.everything_blocked){
+                 std::cout << "everything blocked" <<std::endl;
+            //TODO POUZI CLOSE BUG
+        }
+        else{
+            if(output.new_angle){
+                 std::cout << "closest clear angle" << output.new_angle<< std::endl;
             }
-            else{
-                 this->pidControlRotation();
-            }*/
+            else if (output.clear_path_to_goal){
+                 std::cout << "path clear" <<std::endl;
+
+                /*if(ang_reach){
+                    if(this->pidControlTranslation()){
+                        setPosReach(true);
+                    }
+                }
+                else{
+                     this->pidControlRotation();
+                }*/
+            }
         }
     }
 }
@@ -373,4 +375,13 @@ void MovementControl::setPosReach(bool pos_reach_){
 }
 void MovementControl::setPosAngle(bool ang_reach_){
     this->ang_reach = ang_reach_;
+}
+void MovementControl::setMovementStart(bool stat){
+    movementStart=stat;
+}
+
+bool MovementControl::getMovementStart(){
+   bool temp;
+   temp=movementStart;
+   return temp;
 }
