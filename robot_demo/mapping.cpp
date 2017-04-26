@@ -238,11 +238,24 @@ inline void Mapping::navigationLoop(){
                 target_angle=data_navigacie.goal_angle+360;
             else
                 target_angle=data_navigacie.goal_angle;
-
+            cout << "target angle " << target_angle << endl;
 
 
             for(int i=0; i<measure.numberOfScans;i++)
-            {  float temp=measure.Data[i].scanAngle-target_angle;
+            {
+                float temp=measure.Data[i].scanAngle - target_angle;
+
+                if (target_angle<45 && measure.Data[i].scanAngle>360-(45-target_angle)){
+                    temp=-360+temp;
+                }
+                if (target_angle>315 && measure.Data[i].scanAngle<(45-target_angle)){
+                    temp=360+temp;
+                }
+
+                /*cout << "measured_angle " << measure.Data[i].scanAngle << endl;
+                cout << "target_angle_angle " << target_angle << endl;
+                cout << "temp " << temp << endl;*/
+
                 // pri vzd 1500 a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
 
                 float dist = measure.Data[i].scanDistance *16+4.7;
@@ -251,6 +264,7 @@ inline void Mapping::navigationLoop(){
                 if(temp>-45 && temp<45){
                     if(measure.Data[i].scanAngle>target_angle){
                         if(200/sin(degTorad(measure.Data[i].scanAngle-temp))>dist){
+                            cout << "blocked at " << measure.Data[i].scanAngle << endl;
                             vystup_navigacie.clear_path_to_goal=false;
                     }
                         else {
