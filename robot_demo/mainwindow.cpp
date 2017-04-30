@@ -30,14 +30,14 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
   //  currentWindow->update();
     QString vystup = "Neplatny udaj.";
     //QString vzdialenost= "Neplatny udaj.";
-    //QString uhol = "Neplatny udaj.";
+    QString uhol = "Neplatny udaj.";
 
     vystup = QString::number(inputData.Voltage);
 
     //currentWindow->irob_data.prejdena_vzdialenost =  currentWindow->irob_data.prejdena_vzdialenost + inputData.Distance;
-    //currentWindow->irob_data.uhol_otocenia =  currentWindow->irob_data.uhol_otocenia -inputData.Angle;
+    currentWindow->irob_data.uhol_otocenia =  currentWindow->irob_data.uhol_otocenia -inputData.Angle;
 
-    //uhol = QString::number(currentWindow->irob_data.uhol_otocenia);
+    uhol = QString::number(currentWindow->irob_data.uhol_otocenia);
     //vzdialenost = QString::number(currentWindow->irob_data.prejdena_vzdialenost);
 
 
@@ -49,7 +49,7 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
     vystup =QString::number(inputData.Voltage);
     currentWindow->ui->label->setText(vystup);
     //currentWindow->ui->distance->setText(vzdialenost);
-    //currentWindow->ui->angle->setText(uhol);
+    currentWindow->ui->angle->setText(uhol);
 
 }
 
@@ -73,6 +73,11 @@ void MainWindow::on_pushButton_2_clicked()
         robot_movemet->new_pose.x = ui->lineEdit->text().toInt();
         robot_movemet->new_pose.y = ui->lineEdit_2->text().toInt();
         robot_movemet->new_pose.angle = 0;
+
+        robot_movemet->irob_goal_pose.x = ui->lineEdit->text().toInt();
+        robot_movemet->irob_goal_pose.y= ui->lineEdit_2->text().toInt();
+        robot_movemet->irob_goal_pose.angle = 0;
+
         robot_movemet->setPosReach(false);
         robot_movemet->setPosAngle(false);
         robot_movemet->setMovementStart(true);

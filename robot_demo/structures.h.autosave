@@ -31,6 +31,7 @@ typedef struct NAVIGATION_OUTPUT{
     bool front_view_block;
     bool clear_path_to_goal;
     bool everything_blocked;
+    bool bug0_front_blocked;
 
 }NAVIGATION_OUTPUT;
 

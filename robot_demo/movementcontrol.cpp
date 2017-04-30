@@ -14,6 +14,9 @@
 MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) {
 
     this->dt = dt;
+    modes = 0;
+    goal_clear = 0;
+    front_clear = 0;
     irob_current_pose = POSITION();
     irob_desired_pose = POSITION();
     irob_start_pose = POSITION();
@@ -129,51 +132,129 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
 void MovementControl::moveToNewPose(float speed){
 
-    this->irob_desired_pose = new_pose;
+    this->irob_desired_pose.x= new_pose.x;
+    this->irob_desired_pose.y= new_pose.y;
+
     if(getMovementStart()){
         // TODO CHECK IF NEW POSE IS REACHABLE IF NOT GENERATE NEW ANGLE AND DIRECTION AND REMEBER GOAL POSE
-
+        bool seriously_clear_path = false;
+        bool seriously_clear_fron_view = false;
         NAVIGATION_DATA data;
-        data.goal_angle= this->comuteGoalAngle();
+
+        data.goal_angle= this->comuteAngle();
         data.goal_point = this->irob_desired_pose;
+
         Mapping::setNavigationData(data);
 
         if (!getNavigationStatus())
             Mapping::startNavigation();
+
 
         NAVIGATION_OUTPUT output = Mapping::getNavigationOutput();
 
         while (!output.data_ready){
            output = Mapping::getNavigationOutput();
            std::cout << "data not ready" <<std::endl;
+        }
+        //mody
+        //0-nic
+        //1-everything blocked
+        //2-new_angle
+        //3-path_clear
+        //4-moveing
+        if(output.clear_path_to_goal){
+            goal_clear ++;
+        }
 
+        if(goal_clear > 3){
+            seriously_clear_path = true;
+            goal_clear = 0;
+        }
 
+        if(!output.front_view_block){
+            front_clear ++;
+        }
+
+        if(front_clear > 3){
+            seriously_clear_front_view = true;
+            front_clear = 0;
         }
 
 
-        if (output.everything_blocked){
-                 std::cout << "everything blocked" <<std::endl;
-            //TODO POUZI CLOSE BUG
-        }
-        else{
-            if(output.new_angle){
-                 std::cout << "closest clear angle" << output.new_angle<< std::endl;
+        if (modes == 0){
+
+            if (output.everything_blocked){
+                modes = 1;
+                //TODO POUZI CLOSE BUG
             }
-            else if (output.clear_path_to_goal){
-                 std::cout << "path clear" <<std::endl;
+            else if(output.new_angle > 0){
+                this->irob_goal_pose.angle = output.new_angle;
 
-                /*if(ang_reach){
-                    if(this->pidControlTranslation()){
-                        setPosReach(true);
-                    }
+                if(this->irob_goal_pose.angle > 180)
+                    this->irob_goal_pose.angle = this->irob_goal_pose.angle - 360;
+                modes = 2;
+            //  std::cout << "closest clear angle" << output.new_angle<< std::endl;
+            }
+            else if (seriously_clear_path){
+                ang_reach=false;
+                pos_reach=false;
+                modes = 3;
+            }
+        }
+
+        if(modes == 4 && seriously_clear_path){
+            ang_reach=false;
+            pos_reach=false;
+            modes =3;
+        }
+
+        if(seriously_clear_front_view){
+            this->irob_goal_pose.angle = output.new_angle;
+
+            if(this->irob_goal_pose.angle > 180)
+                this->irob_goal_pose.angle = this->irob_goal_pose.angle - 360;
+            modes = 2;
+        }
+
+        switch (modes) {
+        case 0:
+            break;
+        case 1:
+            std::cout << "everything blocked" <<std::endl;
+            break;
+        case 2:
+            ang_reach=false;
+            if(this->pidControlRotation(true)){
+                modes = 4;
+            }
+            break;
+        case 3:
+            std::cout << "path clear" <<std::endl;
+            this->irob_desired_pose= new_pose;
+            if(ang_reach){
+                if(this->pidControlTranslation(false)){
+                    setPosReach(true);
+                    modes = 0;
                 }
-                else{
-                     this->pidControlRotation();
-                }*/
             }
+            else{
+                 ang_reach = this->pidControlRotation(false);
+            }
+            break;
+        case 4:
+            if(this->pidControlTranslation(true)){
+                modes = 0;
+            }
+        default:
+            break;
         }
+
+        std::cout << "***MODES***:"<< modes <<std::endl;
+
+
     }
 }
+
 
 float MovementControl::comuteGoalAngle(){
 
@@ -261,17 +342,28 @@ float MovementControl::comuteTranslation(){
 
 }
 
-bool MovementControl::pidControlRotation(){
+bool MovementControl::pidControlRotation(bool local){
 
 //predpokladame
     float temp_angle;
     float cur_speed;
 
-    if (pos_reach || ang_reach){  std::cout << "JELITO " << temp_angle << std::endl; return true;}
+    if (pos_reach || ang_reach){
+        std::cout << "JELITO " << temp_angle << std::endl;
+        return true;
+    }
     else{
-        temp_angle=MovementControl::comuteAngle();
+        if(local){
+            temp_angle = irob_goal_pose.angle - irob_current_pose.angle;
+            std::cout << "LOCAL " << temp_angle << std::endl;
 
-        //std::cout << "TEMP ANGLE " << temp_angle << std::endl;
+        }
+        else{
+            temp_angle=MovementControl::comuteAngle();
+            std::cout << "PATH " << temp_angle << std::endl;
+        }
+
+
 
         if (fabs(temp_angle)<=ANGL_DZ){
             //this->robot->move(0,0);
@@ -320,14 +412,20 @@ bool MovementControl::pidControlRotation(){
     }
 }
 
-bool MovementControl::pidControlTranslation(){
+bool MovementControl::pidControlTranslation(bool local){
 
     float cur_speed;
     float temp_dist;
     float temp_angle;
 
-    temp_dist=comuteTranslation();
-    temp_angle=MovementControl::comuteAngle();
+    if (local){
+        temp_dist=1000-dist_sum;
+        temp_angle = 0;
+    }
+    else{
+        temp_dist=comuteTranslation();
+        temp_angle=MovementControl::comuteAngle();
+    }
 
     if (pos_reach){
         return true;
@@ -381,7 +479,5 @@ void MovementControl::setMovementStart(bool stat){
 }
 
 bool MovementControl::getMovementStart(){
-   bool temp;
-   temp=movementStart;
-   return temp;
+   return movementStart;
 }

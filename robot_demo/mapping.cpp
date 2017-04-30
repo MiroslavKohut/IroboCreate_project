@@ -11,11 +11,15 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#define LOOK_DISTANCE 1000
+#define LOOK_DIST_BUG0 250;
+
 
 //
 //50cm x 50cm start point // 600cm x 600cm area // 10cm x 10cm square // 60*60 array
 using namespace std;
-
+int a=0;
+int min_angle;
 
 Mapping::Mapping(bool with_scan)
 {
@@ -30,6 +34,7 @@ Mapping::Mapping(bool with_scan)
     map.resize(MAP_WIDTH,vector<uint8_t>(MAP_HIGHT,0));
     mapping_run = false;
     navigation_run = false;
+
     navigation_data = NAVIGATION_DATA();
     navigation_output = NAVIGATION_OUTPUT();
     navigation_output.data_ready = false;
@@ -145,9 +150,6 @@ void Mapping::stopNavigation(){
     return;
 }
 
-
-
-
 float degTorad(float data){
     return data * RAD_DEG;
 }
@@ -221,7 +223,15 @@ inline void Mapping::navigationLoop(){
     NAVIGATION_OUTPUT vystup_navigacie;
 
     while(getNavigationStatus()){
+        vystup_navigacie.data_ready=false;
+        vystup_navigacie.front_view_block=false;
         data_navigacie = getNavigationData();
+
+
+        if(data_navigacie.goal_angle<0)
+            target_angle=data_navigacie.goal_angle+360;
+        else
+            target_angle=data_navigacie.goal_angle;
 
         if (movement_state != 2){
 
@@ -231,15 +241,8 @@ inline void Mapping::navigationLoop(){
             current_pose = irob_current_mapping_pose;
             pthread_mutex_unlock (&current_pose_lock);
 
-            vystup_navigacie.everything_blocked=true;
+            vystup_navigacie.everything_blocked=false;
             vystup_navigacie.clear_path_to_goal=true;
-
-            if(data_navigacie.goal_angle<0)
-                target_angle=data_navigacie.goal_angle+360;
-            else
-                target_angle=data_navigacie.goal_angle;
-            cout << "target angle " << target_angle << endl;
-
 
             for(int i=0; i<measure.numberOfScans;i++)
             {
@@ -248,61 +251,50 @@ inline void Mapping::navigationLoop(){
                 if (target_angle<45 && measure.Data[i].scanAngle>360-(45-target_angle)){
                     temp=-360+temp;
                 }
-                if (target_angle>315 && measure.Data[i].scanAngle<(45-target_angle)){
+                if (target_angle>315 && measure.Data[i].scanAngle<(45-(360-target_angle))){
                     temp=360+temp;
+                     //cout << "temp is " << temp << endl;
                 }
 
                 /*cout << "measured_angle " << measure.Data[i].scanAngle << endl;
                 cout << "target_angle_angle " << target_angle << endl;
                 cout << "temp " << temp << endl;*/
 
-                // pri vzd 1500 a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
+                // pri vzd LOOK_DISTANCE a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
 
                 float dist = measure.Data[i].scanDistance *16+4.7;
                 if(dist<200)
                     continue;
                 if(temp>-45 && temp<45){
-                    if(measure.Data[i].scanAngle>target_angle){
-                        if(200/sin(degTorad(measure.Data[i].scanAngle-temp))>dist){
-                            cout << "blocked at " << measure.Data[i].scanAngle << endl;
+                  //  cout << "valid angle " << measure.Data[i].scanAngle << endl;
+                    if(temp>=0){
+                        float temp_rect_dist=250/sin(degTorad(temp));
+                        if (temp_rect_dist>LOOK_DISTANCE){
+                            temp_rect_dist=LOOK_DISTANCE;
+                        }
+                        //cout << " at + angle " << measure.Data[i].scanAngle << " distance " << dist << " expected " << temp_rect_dist << endl;
+                        if(temp_rect_dist>dist){
+                         // cout << "blocked @" << endl;
                             vystup_navigacie.clear_path_to_goal=false;
                     }
                         else {
                             //KED NIE JE PREKAZKA
-                        }
-
-                    }
-                    if(measure.Data[i].scanAngle<target_angle){
-                        if(200/sin(degTorad(fabs(measure.Data[i].scanAngle-temp)))>dist){
-                            vystup_navigacie.clear_path_to_goal=false;
-                    }
-                        else {
-                            //KED NIE JE PREKAZKA
-                        }
-
-                    }
-                }
-
-
-                //float temp=measure.Data[i].scanAngle-target_angle;
-
-                if((temp>-90 && temp<90)){ //PREDNA POLKRUZNICA
-
-                    if(temp>0){
-                        if(200/sin(degTorad(temp))>dist){
-                            //JE PREKAZKA - OK
-                    }
-                        else {
-                          vystup_navigacie.everything_blocked=false;
                         }
 
                     }
                     if(temp<0){
-                        if(200/sin(degTorad(fabs(temp)))>dist){
-                             //JE PREKAZKA - OK
+                        float temp_rect_dist=250/sin(degTorad(fabs(temp)));
+                        if (temp_rect_dist > LOOK_DISTANCE)
+                        {
+                            temp_rect_dist=LOOK_DISTANCE;
+                        }
+                        //cout << " at - angle " << measure.Data[i].scanAngle << " distance " << dist << " expected " << temp_rect_dist << endl;
+                        if(temp_rect_dist>dist){
+                        //    cout << "blocked @" << endl;
+                            vystup_navigacie.clear_path_to_goal=false;
                     }
                         else {
-                         vystup_navigacie.everything_blocked=false;
+                            //KED NIE JE PREKAZKA
                         }
 
                     }
@@ -310,52 +302,74 @@ inline void Mapping::navigationLoop(){
 
 
 
-                /*if (measure.Data[i].scanAngle <= 90)
-                    angle = ffabs(measure.Data[i].scanAngle - 90);
-                else { //(measure.Data[i].scanAngle > 90 && measure.Data[i].scanAngle <= 360)
-                    angle = 450 - measure.Data[i].scanAngle;
-
-                }
-                */
-                //point.x = -(cos(degTorad(angle))* dist + current_pose.x);
-                //point.y = sin(degTorad(angle))* dist + current_pose.y;
 
 
-                angles.push_back(measure.Data[i].scanAngle);
+//                angles.push_back(measure.Data[i].scanAngle);
 
 
             }
-            if(vystup_navigacie.clear_path_to_goal==false && vystup_navigacie.everything_blocked==false){
 
-                int min_angle=360;
-                for (int l=0;l<360;l++){
+
+            ///// HALDANIE NOVEHO UHLA /////////////
+            if(vystup_navigacie.clear_path_to_goal==false){
+                float temp_target;
+                min_angle=360;
+                for (int l=0;l<360;l+=4){
                     bool temp_free_path=true;
-                    if(data_navigacie.goal_angle<0)
-                        target_angle=data_navigacie.goal_angle+360+l;
+                    bool temp_free_bug0=true
+                            ;
+                  if(data_navigacie.goal_angle<0)
+                        temp_target=data_navigacie.goal_angle+360;
                     else
-                        target_angle=data_navigacie.goal_angle+l;
+                        temp_target=data_navigacie.goal_angle;
 
-                    float temp=measure.Data[l].scanAngle-target_angle;
+                  float target_angle2=l;
+
+
+
                     for(int i=0; i<measure.numberOfScans;i++)
                     {
-                        // pri vzd 1500 a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
+                        float temp=measure.Data[i].scanAngle-target_angle2;
+
+                        if (target_angle2<45 && measure.Data[i].scanAngle>360-(45-target_angle2)){
+                            temp=-360+temp;
+                        }
+                        if (target_angle2>315 && measure.Data[i].scanAngle<(45-(360-target_angle2))){
+                            temp=360+temp;
+                             //cout << "temp is " << temp << endl;
+                        }
+
+                        // pri vzd LOOK_DISTANCE a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
 
                         float dist = measure.Data[i].scanDistance *16+4.7;
                         if(dist<200)
                             continue;
                         if( temp>-45 && temp<45 ){
-                            if(measure.Data[i].scanAngle>temp){
-                                if(200/sin(degTorad(measure.Data[i].scanAngle-temp))>dist){
+
+                            if(temp>=0){
+                                float temp_rect_dist=250/sin(degTorad(temp));
+                                if (temp_rect_dist>LOOK_DISTANCE){
+                                    temp_rect_dist=LOOK_DISTANCE;
+                                }
+                                if(temp_rect_dist>dist){
                                     temp_free_path=false;
                             }
                                 else {
                                     //KED NIE JE PREKAZKA
                                 }
+                                if (l==0){
+
+                                }
+
 
                             }
-                            if(measure.Data[i].scanAngle<temp){
-                                if(200/sin(degTorad(fabs(measure.Data[i].scanAngle-temp)))>dist){
-                                    temp_free_path=false;
+                            if(temp<0){
+                                float temp_rect_dist=200/sin(degTorad(fabs(temp)));
+                                if (temp_rect_dist>LOOK_DISTANCE){
+                                    temp_rect_dist=LOOK_DISTANCE;
+                                }
+                                if(temp_rect_dist>dist){
+                                   temp_free_path=false;
                             }
                                 else {
                                     //KED NIE JE PREKAZKA
@@ -366,23 +380,51 @@ inline void Mapping::navigationLoop(){
 
 
                 }
-                if(fabs(temp-target_angle)<min_angle && temp_free_path==true){
-                    min_angle=fabs(temp-target_angle);
-                    vystup_navigacie.new_angle=temp;
+                    if (l==0 && temp_free_path==false)
+                        vystup_navigacie.front_view_block=true;
+
+                    float angle_distance=fabs(target_angle2-temp_target);
+                    if (angle_distance>180){
+                        angle_distance=360-angle_distance;
+                    }
+
+                if(fabs(angle_distance)<min_angle && temp_free_path==true){
+                    a=l;
+                    min_angle=angle_distance;
+                    //cout <<  "min angle "<< min_angle <<" at angle " << vystup_navigacie.new_angle  << endl;
+                    vystup_navigacie.new_angle=target_angle2;
                 }
             }
+                //min_angle=360;
+
         }
-             vystup_navigacie.data_ready=true;
+
+            if (vystup_navigacie.clear_path_to_goal==false){
+                cout <<  "nearest_angle cw @  "<< vystup_navigacie.new_angle  << endl;
+
+            }    
+
     }
+    if(min_angle>90)
+        vystup_navigacie.everything_blocked=true;
         ////////////////////////////HLADANIE NOVEHO UHLA///////////////
 
     //TODO TEST DATA FROM thread in points vector;
     std::cout << "Navigujem" << std::endl;
+    cout << "TARGET_ANGLE " << target_angle << endl;
+    cout << "VYSTUP NAVIGACIE " << vystup_navigacie.clear_path_to_goal << endl;
+    cout << "Front View Blocked " << vystup_navigacie.front_view_block << endl;
+
+
+    vystup_navigacie.data_ready=true;
+
+    if (vystup_navigacie.clear_path_to_goal)
+        vystup_navigacie.new_angle = -1;
 
     setNavigationOutput(vystup_navigacie);
+
     usleep(100000);
     }
-    vystup_navigacie.data_ready=false;
     setNavigationOutput(vystup_navigacie);
     return;
 }

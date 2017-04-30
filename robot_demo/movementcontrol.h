@@ -28,19 +28,24 @@ public:
 
     POSITION new_pose;
     POSITION irob_current_pose;
+    POSITION irob_goal_pose;
 
 
 
 private:
     //variablese
+    int goal_clear;
+    int front_clear;
     float dt;
     bool pos_reach;
     bool ang_reach;
     float target_angle;
     float target_dist;
     iRobotCreate *robot;
+    int modes;
 
     POSITION irob_desired_pose;
+
     POSITION irob_start_pose;
 
     DWORD speed_up;
@@ -50,8 +55,8 @@ private:
     float dist_sum;
 
     //methods
-    bool pidControlTranslation();
-    bool pidControlRotation();
+    bool pidControlTranslation(bool local);
+    bool pidControlRotation(bool local);
     float comuteAngle();
     float comuteTranslation();
     float comuteGoalAngle();
