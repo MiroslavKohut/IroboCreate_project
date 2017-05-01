@@ -35,7 +35,8 @@ public:
 private:
     //variablese
     int goal_clear;
-    int front_clear;
+    int front_blocked;
+    int everything_blocked;
     float dt;
     bool pos_reach;
     bool ang_reach;

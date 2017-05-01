@@ -21,6 +21,7 @@ typedef struct NAVIGATION_DATA{
     POSITION curent_position;
     float goal_angle;
     POSITION goal_point;
+    bool bug_enabled;
 
 }NAVIGATION_DATA;
 

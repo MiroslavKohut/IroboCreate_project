@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <iterator>
 #define LOOK_DISTANCE 1000
-#define LOOK_DIST_BUG0 250;
+#define LOOK_DIST_BUG 300
 
 
 //
@@ -263,12 +263,12 @@ inline void Mapping::navigationLoop(){
                 // pri vzd LOOK_DISTANCE a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
 
                 float dist = measure.Data[i].scanDistance *16+4.7;
-                if(dist<200)
+                if(dist<150)
                     continue;
                 if(temp>-45 && temp<45){
                   //  cout << "valid angle " << measure.Data[i].scanAngle << endl;
                     if(temp>=0){
-                        float temp_rect_dist=250/sin(degTorad(temp));
+                        float temp_rect_dist=225/sin(degTorad(temp));
                         if (temp_rect_dist>LOOK_DISTANCE){
                             temp_rect_dist=LOOK_DISTANCE;
                         }
@@ -283,7 +283,7 @@ inline void Mapping::navigationLoop(){
 
                     }
                     if(temp<0){
-                        float temp_rect_dist=250/sin(degTorad(fabs(temp)));
+                        float temp_rect_dist=225/sin(degTorad(fabs(temp)));
                         if (temp_rect_dist > LOOK_DISTANCE)
                         {
                             temp_rect_dist=LOOK_DISTANCE;
@@ -314,9 +314,10 @@ inline void Mapping::navigationLoop(){
             if(vystup_navigacie.clear_path_to_goal==false){
                 float temp_target;
                 min_angle=360;
+                bool temp_free_front=true;
+
                 for (int l=0;l<360;l+=4){
                     bool temp_free_path=true;
-                    bool temp_free_bug0=true
                             ;
                   if(data_navigacie.goal_angle<0)
                         temp_target=data_navigacie.goal_angle+360;
@@ -342,14 +343,23 @@ inline void Mapping::navigationLoop(){
                         // pri vzd LOOK_DISTANCE a sirke 400 sa nesmu data objavit v rozmedzi uhla 30°
 
                         float dist = measure.Data[i].scanDistance *16+4.7;
-                        if(dist<200)
+                        if(dist<150)
                             continue;
                         if( temp>-45 && temp<45 ){
 
                             if(temp>=0){
-                                float temp_rect_dist=250/sin(degTorad(temp));
-                                if (temp_rect_dist>LOOK_DISTANCE){
-                                    temp_rect_dist=LOOK_DISTANCE;
+                                float temp_rect_dist=225/sin(degTorad(temp));
+                                if(!data_navigacie.bug_enabled){
+                                    if (temp_rect_dist>LOOK_DISTANCE)
+                                    {
+                                        temp_rect_dist=LOOK_DISTANCE;
+                                    }
+                                }
+                                else{
+                                    if (temp_rect_dist>LOOK_DIST_BUG)
+                                    {
+                                        temp_rect_dist=LOOK_DIST_BUG;
+                                    }
                                 }
                                 if(temp_rect_dist>dist){
                                     temp_free_path=false;
@@ -357,16 +367,22 @@ inline void Mapping::navigationLoop(){
                                 else {
                                     //KED NIE JE PREKAZKA
                                 }
-                                if (l==0){
-
-                                }
 
 
                             }
                             if(temp<0){
-                                float temp_rect_dist=200/sin(degTorad(fabs(temp)));
-                                if (temp_rect_dist>LOOK_DISTANCE){
-                                    temp_rect_dist=LOOK_DISTANCE;
+                                float temp_rect_dist=225/sin(degTorad(fabs(temp)));
+                                if(!data_navigacie.bug_enabled){
+                                    if (temp_rect_dist>LOOK_DISTANCE)
+                                    {
+                                        temp_rect_dist=LOOK_DISTANCE;
+                                    }
+                                }
+                                else{
+                                    if (temp_rect_dist>LOOK_DIST_BUG)
+                                    {
+                                        temp_rect_dist=LOOK_DIST_BUG;
+                                    }
                                 }
                                 if(temp_rect_dist>dist){
                                    temp_free_path=false;
@@ -378,16 +394,74 @@ inline void Mapping::navigationLoop(){
                             }
                         }
 
+                        if (l==0){
+                            if( temp>-45 && temp<45 ){
+
+                                if(temp>=0){
+                                    float temp_rect_dist=150/sin(degTorad(temp));
+                                    if(!data_navigacie.bug_enabled){
+                                        if (temp_rect_dist>LOOK_DISTANCE)
+                                        {
+                                            temp_rect_dist=LOOK_DISTANCE;
+                                        }
+                                    }
+                                    else{
+                                        if (temp_rect_dist>LOOK_DIST_BUG)
+                                        {
+                                            temp_rect_dist=LOOK_DIST_BUG;
+                                        }
+                                    }
+
+                                    if(temp_rect_dist>dist){
+                                        temp_free_front=false;
+                                }
+                                    else {
+                                        //KED NIE JE PREKAZKA
+                                    }
+
+
+
+
+
+                                }
+                                if(temp<0){
+                                    float temp_rect_dist=150/sin(degTorad(fabs(temp)));
+                                    if(!data_navigacie.bug_enabled){
+                                        if (temp_rect_dist>LOOK_DISTANCE)
+                                        {
+                                            temp_rect_dist=LOOK_DISTANCE;
+                                        }
+                                    }
+                                    else{
+                                        if (temp_rect_dist>LOOK_DIST_BUG)
+                                        {
+                                            temp_rect_dist=LOOK_DIST_BUG;
+                                        }
+                                    }
+                                    if(temp_rect_dist>dist){
+                                       temp_free_front=false;
+                                }
+                                    else {
+                                        //KED NIE JE PREKAZKA
+                                    }
+
+                                }
+                            }
+
+                        }
 
                 }
-                    if (l==0 && temp_free_path==false)
-                        vystup_navigacie.front_view_block=true;
 
+                    vystup_navigacie.front_view_block=!temp_free_front;
                     float angle_distance=fabs(target_angle2-temp_target);
-                    if (angle_distance>180){
-                        angle_distance=360-angle_distance;
+
+                    if (!data_navigacie.bug_enabled){
+                        if (angle_distance>180){
+                            angle_distance=360-angle_distance;
+                        }
                     }
 
+//
                 if(fabs(angle_distance)<min_angle && temp_free_path==true){
                     a=l;
                     min_angle=angle_distance;
@@ -405,8 +479,10 @@ inline void Mapping::navigationLoop(){
             }    
 
     }
-    if(min_angle>90)
+    if(min_angle>90 && !data_navigacie.bug_enabled){
         vystup_navigacie.everything_blocked=true;
+        cout << "@@@@@@@@@@@@@@@@@@@@EVERYTHING BLOCKED @@@@@@@@@@@@@@@@"<< endl;
+    }
         ////////////////////////////HLADANIE NOVEHO UHLA///////////////
 
     //TODO TEST DATA FROM thread in points vector;
@@ -414,6 +490,7 @@ inline void Mapping::navigationLoop(){
     cout << "TARGET_ANGLE " << target_angle << endl;
     cout << "VYSTUP NAVIGACIE " << vystup_navigacie.clear_path_to_goal << endl;
     cout << "Front View Blocked " << vystup_navigacie.front_view_block << endl;
+
 
 
     vystup_navigacie.data_ready=true;

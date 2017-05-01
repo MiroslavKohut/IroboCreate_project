@@ -16,7 +16,8 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) 
     this->dt = dt;
     modes = 0;
     goal_clear = 0;
-    front_clear = 0;
+    front_blocked = 0;
+    everything_blocked = 0;
     irob_current_pose = POSITION();
     irob_desired_pose = POSITION();
     irob_start_pose = POSITION();
@@ -138,7 +139,9 @@ void MovementControl::moveToNewPose(float speed){
     if(getMovementStart()){
         // TODO CHECK IF NEW POSE IS REACHABLE IF NOT GENERATE NEW ANGLE AND DIRECTION AND REMEBER GOAL POSE
         bool seriously_clear_path = false;
-        bool seriously_clear_fron_view = false;
+        bool seriously_blocked_front_view = false;
+        bool seriously_everything_blocked = false;
+
         NAVIGATION_DATA data;
 
         data.goal_angle= this->comuteAngle();
@@ -165,33 +168,66 @@ void MovementControl::moveToNewPose(float speed){
         if(output.clear_path_to_goal){
             goal_clear ++;
         }
+        else{
+            goal_clear =0;
+        }
 
-        if(goal_clear > 3){
+        if(goal_clear > 5){
             seriously_clear_path = true;
             goal_clear = 0;
         }
 
-        if(!output.front_view_block){
-            front_clear ++;
+        if(output.front_view_block){
+            front_blocked++;
+        }
+        else{
+            front_blocked = 0;
         }
 
-        if(front_clear > 3){
-            seriously_clear_front_view = true;
-            front_clear = 0;
+        if(front_blocked > 5){
+            seriously_blocked_front_view = true;
+            front_blocked = 0;
         }
 
+
+        if(output.everything_blocked){
+            everything_blocked++;
+        }
+        else{
+            everything_blocked = 0;
+        }
+
+        if(everything_blocked > 5){
+            seriously_everything_blocked= true;
+            everything_blocked = 0;
+        }
+
+        if (seriously_everything_blocked){
+            modes = 1;
+            //TODO POUZI CLOSE BUG
+        }
 
         if (modes == 0){
 
-            if (output.everything_blocked){
-                modes = 1;
-                //TODO POUZI CLOSE BUG
-            }
-            else if(output.new_angle > 0){
+            if(output.new_angle > 0){
+
                 this->irob_goal_pose.angle = output.new_angle;
 
                 if(this->irob_goal_pose.angle > 180)
-                    this->irob_goal_pose.angle = this->irob_goal_pose.angle - 360;
+                    this->irob_goal_pose.angle = this->irob_goal_pose.angle - 360 + irob_current_pose.angle;
+                else{
+                    if(this->irob_goal_pose.angle > 180)
+                        this->irob_goal_pose.angle = this->irob_goal_pose.angle + irob_current_pose.angle;
+                }
+
+                float change = fabs(this->irob_goal_pose.angle)-180;
+
+                if(this->irob_goal_pose.angle >=180){
+                    this->irob_goal_pose.angle = -180 + change;
+                }
+                else if(this->irob_goal_pose.angle <=-180){
+                    this->irob_goal_pose.angle = 180 - change;
+                }
                 modes = 2;
             //  std::cout << "closest clear angle" << output.new_angle<< std::endl;
             }
@@ -208,21 +244,48 @@ void MovementControl::moveToNewPose(float speed){
             modes =3;
         }
 
-        if(seriously_clear_front_view){
-            this->irob_goal_pose.angle = output.new_angle;
+        if(seriously_blocked_front_view){
+            if (modes == 3 && comuteTranslation() <= 1100){
+            //DO NOTHING
+            }
+            else{
+                this->irob_goal_pose.angle = output.new_angle;
 
-            if(this->irob_goal_pose.angle > 180)
-                this->irob_goal_pose.angle = this->irob_goal_pose.angle - 360;
-            modes = 2;
+                if(this->irob_goal_pose.angle > 180)
+                    this->irob_goal_pose.angle = this->irob_goal_pose.angle - 360+irob_current_pose.angle;
+                else{
+                    if(this->irob_goal_pose.angle > 180)
+                        this->irob_goal_pose.angle = this->irob_goal_pose.angle + irob_current_pose.angle;
+                }
+
+                float change = fabs(this->irob_goal_pose.angle)-180;
+
+                if(this->irob_goal_pose.angle >=180){
+                    this->irob_goal_pose.angle = -180 + change;
+                }
+                else if(this->irob_goal_pose.angle <=-180){
+                    this->irob_goal_pose.angle = 180 - change;
+                }
+                modes = 2;
+            }
         }
 
         switch (modes) {
         case 0:
             break;
         case 1:
-            std::cout << "everything blocked" <<std::endl;
+
+            std::cout << "EVERYTHING BLOCKED" <<std::endl;
+            robStop();
+            /// TODO   1. CHANGE DISTANCE 1100 >> 300-400
+            ///        2. POZERAT VZDIALENOSTI OD CIELA LOGOVAT
+            ///        3. DOPLNIT LOADOVANIE BODOV Z MAPY +
+            ///        4. SPATNE PREPNUTIE DO BUG1
+            ///        5. ROZJEBAT LUKASA STEHLIKA
             break;
+
         case 2:
+            std::cout << "COMUTED_ANGLE " << this->irob_goal_pose.angle << std::endl;
             ang_reach=false;
             if(this->pidControlRotation(true)){
                 modes = 4;
@@ -354,7 +417,7 @@ bool MovementControl::pidControlRotation(bool local){
     }
     else{
         if(local){
-            temp_angle = irob_goal_pose.angle - irob_current_pose.angle;
+            temp_angle = this->irob_goal_pose.angle - irob_current_pose.angle;
             std::cout << "LOCAL " << temp_angle << std::endl;
 
         }
