@@ -451,15 +451,18 @@ inline void Mapping::navigationLoop(){
                         }
 
                 }
-
+                    float angle_distance;
                     vystup_navigacie.front_view_block=!temp_free_front;
-                    float angle_distance=fabs(target_angle2-temp_target);
 
                     if (!data_navigacie.bug_enabled){
+                        angle_distance=fabs(target_angle2-temp_target);
+
                         if (angle_distance>180){
                             angle_distance=360-angle_distance;
                         }
                     }
+                    else {angle_distance=l;
+                     }
 
 //
                 if(fabs(angle_distance)<min_angle && temp_free_path==true){
