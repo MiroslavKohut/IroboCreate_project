@@ -146,7 +146,7 @@ void MovementControl::moveToNewPose(float speed){
 
         data.goal_angle= this->comuteAngle();
         data.goal_point = this->irob_desired_pose;
-
+//
         Mapping::setNavigationData(data);
 
         if (!getNavigationStatus())
@@ -172,7 +172,7 @@ void MovementControl::moveToNewPose(float speed){
             goal_clear =0;
         }
 
-        if(goal_clear > 5){
+        if(goal_clear > 3){
             seriously_clear_path = true;
             goal_clear = 0;
         }
@@ -184,7 +184,7 @@ void MovementControl::moveToNewPose(float speed){
             front_blocked = 0;
         }
 
-        if(front_blocked > 5){
+        if(front_blocked > 3){
             seriously_blocked_front_view = true;
             front_blocked = 0;
         }
@@ -196,8 +196,8 @@ void MovementControl::moveToNewPose(float speed){
         else{
             everything_blocked = 0;
         }
-
-        if(everything_blocked > 5){
+//
+        if(everything_blocked > 3){
             seriously_everything_blocked= true;
             everything_blocked = 0;
         }
@@ -216,7 +216,7 @@ void MovementControl::moveToNewPose(float speed){
                 if(this->irob_goal_pose.angle > 180)
                     this->irob_goal_pose.angle = this->irob_goal_pose.angle - 360 + irob_current_pose.angle;
                 else{
-                    if(this->irob_goal_pose.angle > 180)
+                    if(this->irob_goal_pose.angle < 180)
                         this->irob_goal_pose.angle = this->irob_goal_pose.angle + irob_current_pose.angle;
                 }
 
@@ -242,6 +242,8 @@ void MovementControl::moveToNewPose(float speed){
             ang_reach=false;
             pos_reach=false;
             modes =3;
+            data.bug_enabled=0;
+            setNavigationData(data);
         }
 
         if(seriously_blocked_front_view){
@@ -254,7 +256,7 @@ void MovementControl::moveToNewPose(float speed){
                 if(this->irob_goal_pose.angle > 180)
                     this->irob_goal_pose.angle = this->irob_goal_pose.angle - 360+irob_current_pose.angle;
                 else{
-                    if(this->irob_goal_pose.angle > 180)
+                    if(this->irob_goal_pose.angle < 180)
                         this->irob_goal_pose.angle = this->irob_goal_pose.angle + irob_current_pose.angle;
                 }
 
@@ -276,7 +278,9 @@ void MovementControl::moveToNewPose(float speed){
         case 1:
 
             std::cout << "EVERYTHING BLOCKED" <<std::endl;
-            robStop();
+            data.bug_enabled=1;
+            setNavigationData(data);
+            //robStop();
             /// TODO   1. CHANGE DISTANCE 1100 >> 300-400
             ///        2. POZERAT VZDIALENOSTI OD CIELA LOGOVAT
             ///        3. DOPLNIT LOADOVANIE BODOV Z MAPY +

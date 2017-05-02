@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <iterator>
 #define LOOK_DISTANCE 1000
-#define LOOK_DIST_BUG 300
+#define LOOK_DIST_BUG 250
 
 
 //
