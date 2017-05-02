@@ -320,9 +320,9 @@ inline void Mapping::navigationLoop(){
                     bool temp_free_path=true;
                             ;
                   if(data_navigacie.goal_angle<0)
-                        temp_target=data_navigacie.goal_angle+360;
+                        temp_target=0;//data_navigacie.goal_angle+360;
                     else
-                        temp_target=data_navigacie.goal_angle;
+                        temp_target=0;//data_navigacie.goal_angle;
 
                   float target_angle2=l;
 
