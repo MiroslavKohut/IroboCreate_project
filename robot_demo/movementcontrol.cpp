@@ -3,7 +3,7 @@
 #include <math.h>
 #define P_REG 2.5
 #define P_ANG 2.0
-#define ANGL_DZ 1
+#define ANGL_DZ 1.5
 #define POS_DZ 60
 
 #define SPEED_SAT_UP 180
@@ -175,6 +175,7 @@ void MovementControl::moveToNewPose(float speed){
         if(goal_clear > 3){
             seriously_clear_path = true;
             goal_clear = 0;
+            data.bug_enabled=false;
         }
 
         if(output.front_view_block){
@@ -235,13 +236,15 @@ void MovementControl::moveToNewPose(float speed){
                 ang_reach=false;
                 pos_reach=false;
                 modes = 3;
+                data.bug_enabled=0;
+                setNavigationData(data);
             }
         }
 
         if(modes == 4 && seriously_clear_path){
             ang_reach=false;
             pos_reach=false;
-            modes =3;
+            modes = 3;
             data.bug_enabled=0;
             setNavigationData(data);
         }
@@ -286,6 +289,8 @@ void MovementControl::moveToNewPose(float speed){
             ///        3. DOPLNIT LOADOVANIE BODOV Z MAPY +
             ///        4. SPATNE PREPNUTIE DO BUG1
             ///        5. ROZJEBAT LUKASA STEHLIKA
+            ///
+            modes = 0;
             break;
 
         case 2:
