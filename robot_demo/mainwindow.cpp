@@ -278,6 +278,8 @@ void MainWindow::on_pushButton_12_clicked()
             path[i].x=path[i].x*-50;
             path[i].y=path[i].y*50;
         }
+        if (path.size() > 1)
+            path.pop_back();
         robot_movemet->new_pose = path;
 
         robot_movemet->setPosReach(false);

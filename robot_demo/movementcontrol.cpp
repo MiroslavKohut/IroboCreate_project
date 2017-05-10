@@ -137,6 +137,9 @@ void MovementControl::moveToNewPose(float speed){
     }
     else
     {
+        setPosReach(true);
+        setPosAngle(true);
+        setMovementStart(false);
         std::cout << "PRAZDNE DATA" <<std::endl;
         return;
     }
@@ -312,9 +315,11 @@ void MovementControl::moveToNewPose(float speed){
             this->irob_desired_pose.y= new_pose[new_pose.size()-1].y;
             if(ang_reach){
                 if(this->pidControlTranslation(false)){
-                    setPosReach(true);
-                    ang_reach=true;
-                    setMovementStart(false);
+
+                    setPosReach(false);
+                    setPosAngle(false);
+                    setMovementStart(true);
+
                     new_pose.pop_back();
                     modes = 0;                
                 }
