@@ -135,14 +135,21 @@ void MainWindow::paintEvent(QPaintEvent *event)
         static_map->clearMap();
         static_map->loadFile();
 
-        std::vector<POINT> path;
-
         POINT start = {ui->start_x->text().toInt(),ui->start_y->text().toInt()};
         POINT end = {ui->stop_x->text().toInt(),ui->stop_y->text().toInt()};
 
         if(!static_map->findPath(path,start,end))
         {
             cout<< "NENASLO CESTU VYKRESLUJEM LEN MAPU" << endl;
+        }
+        else{
+
+            cout<< "CESTA NAJDENA" << endl;
+            cout<< "Velkost cesty "<< path.size() << endl;
+
+            for (int i = 0 ; i< path.size();i++){
+            cout<< "cesta y "<< (int)path[i].y << " cesta x " << (int)path[i].x << endl;
+            }
         }
 
 
@@ -260,4 +267,29 @@ void MainWindow::on_pushButton_11_pressed()
 void MainWindow::on_pushButton_11_released()
 {
     robot_movemet->robStop();
+}
+// path move
+void MainWindow::on_pushButton_12_clicked()
+{
+    if(path.empty()){
+        cout << "path je prazdna vygenerujte trajektorie" << endl;
+    }
+    else{
+        cout << "hybem sa po vygenerovanej ceste" << endl;
+        for (int i=path.size()-1; i >= 0;i--){
+            robot_movemet->new_pose.x = path[i].x*-50;
+            robot_movemet->new_pose.y = path[i].y*50;
+            robot_movemet->new_pose.angle = 0;
+
+            robot_movemet->irob_goal_pose.x = path[i].x*-50;
+            robot_movemet->irob_goal_pose.y = path[i].y*50;
+            robot_movemet->irob_goal_pose.angle = 0;
+
+            robot_movemet->setPosReach(false);
+            robot_movemet->setPosAngle(false);
+            robot_movemet->setMovementStart(true);
+            while(!robot_movemet->getMovementStart()){}
+        }
+    }
+
 }

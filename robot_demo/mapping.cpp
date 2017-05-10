@@ -558,7 +558,7 @@ void Mapping::loadFile(){
                if(d[n]==','){
                    d[n]='?';
                }
-              /* if(d[n]=='.'){
+               /*if(d[n]=='.'){
                    d[n]=',';
                }*/
            }
@@ -615,6 +615,7 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
     end.x = -end.x;
 
     std::vector<POINT> final_path;
+    cesta.clear();
 
     uint8_t start_num = 2;
     uint8_t start_x =(int)start.x/DIV_CONST;
@@ -933,15 +934,17 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
             curr_array_pose.x = end_x;
             curr_array_pose.y = end_y;
             final_path.push_back(curr_array_pose);
-
+/*
             for (int i = 0 ; i< final_path.size();i++){
                  printf("cesta y %d ",(int)final_path[i].y);
                  printf("cesta x %d \n",(int)final_path[i].x);
-            }
+            }*/
 
-            printf("Velkost cesty %d \n",final_path.size());
-            cout << "PATH FOUND" << endl;
-            cout << "SIZE: " << cesta.size() << endl;
+            //printf("Velkost cesty %d \n",final_path.size());
+            //cout << "PATH FOUND" << endl;
+            //cout << "SIZE: " << cesta.size() << endl;
+            //cesta.clear();
+            cesta = final_path;
             return true;
         }
 

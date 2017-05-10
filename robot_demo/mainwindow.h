@@ -68,6 +68,8 @@ private slots:
 
     void on_pushButton_11_released();
 
+    void on_pushButton_12_clicked();
+
 private:
      int paintEventStatus;
     Ui::MainWindow *ui;
@@ -76,6 +78,7 @@ private:
     float prejdena_vzdialenost;
     float uhol_otocenia;
     float napatie_bateriek;
+    std::vector<POINT> path;
     Mapping *static_map;
 
     INFO_DATA irob_data;
