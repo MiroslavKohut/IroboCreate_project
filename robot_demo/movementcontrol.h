@@ -26,7 +26,7 @@ public:
 
     bool movementStart;
 
-    POSITION new_pose;
+    std::vector<POINT> new_pose;
     POSITION irob_current_pose;
     POSITION irob_goal_pose;
 

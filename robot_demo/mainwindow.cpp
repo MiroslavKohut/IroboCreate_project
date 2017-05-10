@@ -69,13 +69,11 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_pushButton_2_clicked()
 {
     if (robot != NULL){
+        robot_movemet->new_pose.clear();
+        robot_movemet->new_pose.resize(1);
+        robot_movemet->new_pose[0].x = ui->lineEdit->text().toInt();
+        robot_movemet->new_pose[0].y = ui->lineEdit_2->text().toInt();
 
-        robot_movemet->new_pose.x = ui->lineEdit->text().toInt();
-        robot_movemet->new_pose.y = ui->lineEdit_2->text().toInt();
-        robot_movemet->new_pose.angle = 0;
-
-        robot_movemet->irob_goal_pose.x = ui->lineEdit->text().toInt();
-        robot_movemet->irob_goal_pose.y= ui->lineEdit_2->text().toInt();
         robot_movemet->irob_goal_pose.angle = 0;
 
         robot_movemet->setPosReach(false);
@@ -275,21 +273,17 @@ void MainWindow::on_pushButton_12_clicked()
         cout << "path je prazdna vygenerujte trajektorie" << endl;
     }
     else{
-        cout << "hybem sa po vygenerovanej ceste" << endl;
-        for (int i=path.size()-1; i >= 0;i--){
-            robot_movemet->new_pose.x = path[i].x*-50;
-            robot_movemet->new_pose.y = path[i].y*50;
-            robot_movemet->new_pose.angle = 0;
-
-            robot_movemet->irob_goal_pose.x = path[i].x*-50;
-            robot_movemet->irob_goal_pose.y = path[i].y*50;
-            robot_movemet->irob_goal_pose.angle = 0;
-
-            robot_movemet->setPosReach(false);
-            robot_movemet->setPosAngle(false);
-            robot_movemet->setMovementStart(true);
-            while(!robot_movemet->getMovementStart()){}
+        robot_movemet->new_pose.clear();
+        for (int i=0;i<path.size();i++){
+            path[i].x=path[i].x*-50;
+            path[i].y=path[i].y*50;
         }
+        robot_movemet->new_pose = path;
+
+        robot_movemet->setPosReach(false);
+        robot_movemet->setPosAngle(false);
+        robot_movemet->setMovementStart(true);
+        cout << "hybem sa po vygenerovanej ceste" << endl;
     }
 
 }

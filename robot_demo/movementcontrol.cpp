@@ -22,8 +22,6 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) 
     irob_desired_pose = POSITION();
     irob_start_pose = POSITION();
 
-    new_pose = POSITION();
-
     this->robot = robot;
 
     this->irob_current_pose.x = -500;
@@ -133,8 +131,16 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
 void MovementControl::moveToNewPose(float speed){
 
-    this->irob_desired_pose.x= new_pose.x;
-    this->irob_desired_pose.y= new_pose.y;
+    if(!new_pose.empty()){
+        this->irob_desired_pose.x= new_pose[new_pose.size()-1].x;
+        this->irob_desired_pose.y= new_pose[new_pose.size()-1].y;
+    }
+    else
+    {
+        std::cout << "PRAZDNE DATA" <<std::endl;
+        return;
+    }
+
 
     if(getMovementStart()){
         // TODO CHECK IF NEW POSE IS REACHABLE IF NOT GENERATE NEW ANGLE AND DIRECTION AND REMEBER GOAL POSE
@@ -302,11 +308,15 @@ void MovementControl::moveToNewPose(float speed){
             break;
         case 3:
             std::cout << "path clear" <<std::endl;
-            this->irob_desired_pose= new_pose;
+            this->irob_desired_pose.x= new_pose[new_pose.size()-1].x;
+            this->irob_desired_pose.y= new_pose[new_pose.size()-1].y;
             if(ang_reach){
                 if(this->pidControlTranslation(false)){
                     setPosReach(true);
-                    modes = 0;
+                    ang_reach=true;
+                    setMovementStart(false);
+                    new_pose.pop_back();
+                    modes = 0;                
                 }
             }
             else{
