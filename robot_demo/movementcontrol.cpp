@@ -28,7 +28,7 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) 
     this->irob_current_pose.y = 500;
     this->irob_start_pose.x = -500;
     this->irob_start_pose.y = -500;
-
+    XXX = 0;
     speed_up=0;
     pos_reach=true;
     ang_reach=true;
@@ -131,20 +131,84 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
 void MovementControl::moveToNewPose(float speed){
 
-    if(!new_pose.empty()){
-        this->irob_desired_pose.x= new_pose[new_pose.size()-1].x;
-        this->irob_desired_pose.y= new_pose[new_pose.size()-1].y;
-    }
-    else
-    {
-        setPosReach(true);
-        setPosAngle(true);
-        setMovementStart(false);
-        std::cout << "PRAZDNE DATA" <<std::endl;
-        return;
+    if(getMovementStart()){ 
+
+        MAPPING_OUTPUT data = getMappingOutput();
+
+        while (!data.data_ready){
+           data = getMappingOutput();
+           std::cout << "data not ready" <<std::endl;
+           new_pose.clear();
+           new_pose = data.new_maping_pose;
+
+           for (int i=0;i<new_pose.size();i++){
+               new_pose[i].x=new_pose[i].x*-50;
+               new_pose[i].y=new_pose[i].y*50;
+           }
+           if (new_pose.size() > 1)
+               new_pose.pop_back();
+
+           setPosReach(false);
+           setPosAngle(false);
+           setMovementStart(true);
+
+        }
+
+        if (XXX == 50){
+            XXX =0;
+            new_pose.clear();
+            new_pose = data.new_maping_pose;
+
+            for (int i=0;i<new_pose.size();i++){
+                new_pose[i].x=new_pose[i].x*-50;
+                new_pose[i].y=new_pose[i].y*50;
+            }
+            if (new_pose.size() > 1)
+                new_pose.pop_back();
+
+            setPosReach(false);
+            setPosAngle(false);
+            setMovementStart(true);
+        }
+
+        for (int i=0;i<new_pose.size();i++){
+            std::cout << "PATH DATA X" << new_pose[i].x << std::endl;
+            std::cout << "PATH DATA Y" << new_pose[i].y << std::endl;
+        }
+        XXX++;
+
+        if(!new_pose.empty()){
+            this->irob_desired_pose.x= new_pose[new_pose.size()-1].x;
+            this->irob_desired_pose.y= new_pose[new_pose.size()-1].y;
+        }
+        else
+        {
+            setPosReach(true);
+            setPosAngle(true);
+            setMovementStart(false);
+            std::cout << "PRAZDNE DATA" <<std::endl;
+            return;
+        }
+
+
+        if(ang_reach){
+            if(this->pidControlTranslation(false)){
+
+                setPosReach(false);
+                setPosAngle(false);
+                setMovementStart(true);
+
+                new_pose.pop_back();
+                modes = 0;
+            }
+        }
+        else{
+             ang_reach = this->pidControlRotation(false);
+        }
     }
 
 
+    /*
     if(getMovementStart()){
         // TODO CHECK IF NEW POSE IS REACHABLE IF NOT GENERATE NEW ANGLE AND DIRECTION AND REMEBER GOAL POSE
         bool seriously_clear_path = false;
@@ -339,7 +403,7 @@ void MovementControl::moveToNewPose(float speed){
         std::cout << "***MODES***:"<< modes <<std::endl;
 
 
-    }
+    }*/
 }
 
 

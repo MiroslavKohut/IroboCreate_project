@@ -34,6 +34,7 @@ public:
 
 private:
     //variablese
+    int XXX;
     int goal_clear;
     int front_blocked;
     int everything_blocked;

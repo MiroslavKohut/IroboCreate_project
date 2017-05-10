@@ -35,4 +35,13 @@ typedef struct NAVIGATION_OUTPUT{
 
 }NAVIGATION_OUTPUT;
 
+typedef struct MAPPING_OUTPUT{
+
+    std::vector<POINT> new_maping_pose;
+    POINT start_point;
+    POINT end_point;
+    bool data_ready;
+
+}MAPPING_OUTPUT;
+
 #endif // STRUCTURES_H

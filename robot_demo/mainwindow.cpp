@@ -74,6 +74,14 @@ void MainWindow::on_pushButton_2_clicked()
         robot_movemet->new_pose[0].x = ui->lineEdit->text().toInt();
         robot_movemet->new_pose[0].y = ui->lineEdit_2->text().toInt();
 
+        MAPPING_OUTPUT data;
+        data.start_point.x=-500;
+        data.start_point.y= 500;
+        data.end_point.x = ui->lineEdit->text().toInt();
+        data.end_point.y = ui->lineEdit_2->text().toInt();
+        data.data_ready = false;
+        robot_movemet->setMappingOutput(data);
+
         robot_movemet->irob_goal_pose.angle = 0;
 
         robot_movemet->setPosReach(false);
@@ -135,14 +143,17 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
         POINT start = {ui->start_x->text().toInt(),ui->start_y->text().toInt()};
         POINT end = {ui->stop_x->text().toInt(),ui->stop_y->text().toInt()};
-
+        clock_t begin = clock();
         if(!static_map->findPath(path,start,end))
-        {
-            cout<< "NENASLO CESTU VYKRESLUJEM LEN MAPU" << endl;
+        {   clock_t end = clock();
+            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+            cout<< "NENASLO CESTU VYKRESLUJEM LEN MAPU -----"  << elapsed_secs<< endl;
         }
         else{
+            clock_t end = clock();
+            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-            cout<< "CESTA NAJDENA" << endl;
+            cout<< "CESTA NAJDENA ----" << elapsed_secs <<endl;
             cout<< "Velkost cesty "<< path.size() << endl;
 
             for (int i = 0 ; i< path.size();i++){
@@ -199,6 +210,14 @@ void MainWindow::paintEvent(QPaintEvent *event)
                    }*/
                    if(robot_movemet->map[x][y]==1){
                        painter.setBrush(Qt::black);
+                     painter.drawRect(500+x*5,30+y*5,5,5);
+                   }
+                   if(static_map->map[x][y]== 200){
+                       painter.setBrush(Qt::red);
+                     painter.drawRect(500+x*5,30+y*5,5,5);
+                   }
+                   if(static_map->map[x][y]== 201){
+                       painter.setBrush(Qt::blue);
                      painter.drawRect(500+x*5,30+y*5,5,5);
                    }
 

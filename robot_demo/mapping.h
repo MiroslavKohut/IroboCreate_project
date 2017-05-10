@@ -35,11 +35,13 @@ private:
     int thread_out;
     NAVIGATION_DATA navigation_data;
     NAVIGATION_OUTPUT navigation_output;
+    MAPPING_OUTPUT mapping_output;
 
 
     pthread_mutex_t mapping_status_lock;
     pthread_mutex_t navigation_status_lock;
     pthread_mutex_t navigation_data_lock;
+    pthread_mutex_t mapping_output_lock;
     pthread_mutex_t mapppin_mutex;
    /* pthread_mutex_lock (&mutexsum);
     dotstr.sum += mysum;
@@ -63,13 +65,15 @@ public:
 
     void setNavigationStatus(bool data);
     bool getNavigationStatus();
-
+    MAPPING_OUTPUT getMappingOutput();
+    void setMappingOutput(MAPPING_OUTPUT data);
 
     bool clearMap();
     void extract_number(std::string& line);
     bool findPath(std::vector<POINT> &cesta,POINT start, POINT end);
 
     std::vector< std::vector<uint8_t> > map;
+    std::vector<POINT> new_maping_pose;
 
     pthread_mutex_t current_pose_lock;
     u_int8_t movement_state;

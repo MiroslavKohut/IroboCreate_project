@@ -45,6 +45,22 @@ Mapping::~Mapping()
     //pthread_join(mapping_thread,NULL);
 }
 
+MAPPING_OUTPUT Mapping::getMappingOutput(){
+
+    pthread_mutex_lock (&mapping_output_lock);
+    MAPPING_OUTPUT data = mapping_output;
+    pthread_mutex_unlock (&mapping_output_lock);
+    return data;
+}
+
+
+void Mapping::setMappingOutput(MAPPING_OUTPUT data){
+
+    pthread_mutex_lock (&mapping_output_lock);
+    this->mapping_output = data;
+    pthread_mutex_unlock (&mapping_output_lock);
+    return;
+}
 
 void Mapping::setNavigationOutput(NAVIGATION_OUTPUT data){
 
@@ -174,7 +190,7 @@ inline void Mapping::mappingLoop(){
             for(int i=0; i<measure.numberOfScans;i++)
             {
                 float dist = measure.Data[i].scanDistance *16+4.7;
-                if(dist > 2000 || dist<200)
+                if(dist > 2000 || dist<200 || (dist>600 && dist<800))
                     continue;
 
                 if (measure.Data[i].scanAngle <= 90)
@@ -207,9 +223,23 @@ inline void Mapping::mappingLoop(){
                 points.push_back(point);
             }
         }
-    //TODO TEST DATA FROM thread in points vector;
-    std::cout << "zmapoval som" << std::endl;
-    usleep(1000000);
+        else{
+            usleep(10000);
+            continue;
+        }
+
+        MAPPING_OUTPUT data = getMappingOutput();
+
+        if(findPath(data.new_maping_pose,data.start_point,data.end_point)){
+            data.data_ready = true;
+            setMappingOutput(data);
+        }
+        else{
+            std::cout << "NEVIEM NAJST PATH" << std::endl;
+        }
+        //TODO TEST DATA FROM thread in points vector;
+        std::cout << "zmapoval som" << std::endl;
+        usleep(300000);
     }
     return;
 }
@@ -299,10 +329,6 @@ inline void Mapping::navigationLoop(){
 
                     }
                 }
-
-
-
-
 
 //                angles.push_back(measure.Data[i].scanAngle);
 
@@ -524,7 +550,17 @@ int Mapping::getPoints(){
 void Mapping::createDynamicMap(POINT bod){
 
     //pthread_mutex_lock (&mapppin_mutex);
-    map[(int)(bod.x/DIV_CONST)][(int)(bod.y/DIV_CONST)] = 1;
+
+    int x = (int)(bod.x/DIV_CONST);
+    int y = (int)(bod.y/DIV_CONST);
+    map[x][y] = 1;
+
+    for(int j=-3;j<=3;j++){
+        for(int m=-3;m<=3;m++){
+            if (x+j > 0 && x+j <MAP_WIDTH && y+m > 0 && x+m < MAP_HIGHT)
+              map[x+j][y+m]= 1;
+        }
+    }
     //pthread_mutex_unlock (&mapppin_mutex);
 
 
@@ -611,6 +647,7 @@ void Mapping::loadFile(){
 }
 
 bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
+
     start.x = -start.x;
     end.x = -end.x;
 
