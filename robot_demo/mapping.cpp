@@ -228,14 +228,27 @@ inline void Mapping::mappingLoop(){
             continue;
         }
 
+//TODO test if map is reloaded properly
+
         MAPPING_OUTPUT data = getMappingOutput();
 
+        map_zaloha.clear();
+        map_zaloha=map;
+
         if(findPath(data.new_maping_pose,data.start_point,data.end_point)){
+            map.clear();
+            map=map_zaloha;
             data.data_ready = true;
             setMappingOutput(data);
         }
         else{
             std::cout << "NEVIEM NAJST PATH" << std::endl;
+            POINT data_set = data.end_point;
+            data_set.x = data_set.x/-50;
+            data_set.y = data_set.y/50;
+            data.new_maping_pose.push_back(data_set);
+            data.data_ready = true;
+            setMappingOutput(data);
         }
         //TODO TEST DATA FROM thread in points vector;
         std::cout << "zmapoval som" << std::endl;

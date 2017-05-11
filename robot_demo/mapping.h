@@ -73,6 +73,7 @@ public:
     bool findPath(std::vector<POINT> &cesta,POINT start, POINT end);
 
     std::vector< std::vector<uint8_t> > map;
+    std::vector< std::vector<uint8_t> > map_zaloha;
     std::vector<POINT> new_maping_pose;
 
     pthread_mutex_t current_pose_lock;

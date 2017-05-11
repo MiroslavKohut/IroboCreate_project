@@ -27,7 +27,7 @@ MovementControl::MovementControl(float dt, iRobotCreate *robot) : Mapping(true) 
     this->irob_current_pose.x = -500;
     this->irob_current_pose.y = 500;
     this->irob_start_pose.x = -500;
-    this->irob_start_pose.y = -500;
+    this->irob_start_pose.y = 500;
     XXX = 0;
     speed_up=0;
     pos_reach=true;
@@ -131,9 +131,14 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
 void MovementControl::moveToNewPose(float speed){
 
-    if(getMovementStart()){ 
+    MAPPING_OUTPUT data = getMappingOutput();
 
-        MAPPING_OUTPUT data = getMappingOutput();
+    if(getMovementStart()){
+
+        data.start_point.x=(int)irob_current_pose.x;
+        data.start_point.y=(int)irob_current_pose.y;
+        setMappingOutput(data);
+        data = getMappingOutput();
 
         while (!data.data_ready){
            data = getMappingOutput();
@@ -154,28 +159,48 @@ void MovementControl::moveToNewPose(float speed){
 
         }
 
-        if (XXX == 50){
+        if (XXX == 70){
             XXX =0;
-            new_pose.clear();
-            new_pose = data.new_maping_pose;
-
-            for (int i=0;i<new_pose.size();i++){
-                new_pose[i].x=new_pose[i].x*-50;
-                new_pose[i].y=new_pose[i].y*50;
+            bool vect_equal=true;
+            if (new_pose.size()!=data.new_maping_pose.size()){
+                vect_equal=false;
             }
-            if (new_pose.size() > 1)
-                new_pose.pop_back();
+            else{
+                for (int i=0;i<new_pose.size();i++){
+                    if(new_pose[i].x!=data.new_maping_pose[i].x || new_pose[i].y!=data.new_maping_pose[i].y)
+                        vect_equal=false;
+                }
+            }
 
-            setPosReach(false);
-            setPosAngle(false);
-            setMovementStart(true);
+            if (vect_equal){
+                //FUKITOL
+            }
+            else{
+                new_pose.clear();
+                new_pose = data.new_maping_pose;
+
+                for (int i=0;i<new_pose.size();i++){
+                    new_pose[i].x=new_pose[i].x*-50;
+                    new_pose[i].y=new_pose[i].y*50;
+                }
+                if (new_pose.size() > 1)
+                    new_pose.pop_back();
+
+                setPosReach(false);
+                setPosAngle(false);
+                setMovementStart(true);
+
+            }
         }
+
+        std::cout << XXX <<std::endl;
 
         for (int i=0;i<new_pose.size();i++){
             std::cout << "PATH DATA X" << new_pose[i].x << std::endl;
             std::cout << "PATH DATA Y" << new_pose[i].y << std::endl;
         }
-        XXX++;
+        if(movement_state != 2)
+            XXX++;
 
         if(!new_pose.empty()){
             this->irob_desired_pose.x= new_pose[new_pose.size()-1].x;

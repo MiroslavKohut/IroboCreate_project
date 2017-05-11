@@ -53,6 +53,7 @@ int MainWindow::demoCallback(CreateSensors inputData,void *ioPointer)
 
 }
 
+//connection
 
 void MainWindow::on_pushButton_clicked()
 {
@@ -306,5 +307,19 @@ void MainWindow::on_pushButton_12_clicked()
         robot_movemet->setMovementStart(true);
         cout << "hybem sa po vygenerovanej ceste" << endl;
     }
+
+}
+//zresetuje vsetko nastavenie
+
+void MainWindow::on_pushButton_13_clicked()
+{
+    if (!robot){
+        cout << "connect the robot" << endl;
+    }
+    else{
+        delete robot_movemet;
+        robot_movemet = new MovementControl(TIME_STAMP_S,robot);
+    }
+
 
 }
