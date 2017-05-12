@@ -31,9 +31,19 @@ Mapping::Mapping(bool with_scan)
     }
 
     irob_current_mapping_pose = POSITION();
-    map.resize(MAP_WIDTH,vector<uint8_t>(MAP_HIGHT,0));
+    map.resize(MAP_WIDTH,vector<int>(MAP_HIGHT,-3));
+
+    for(int x=0;x < MAP_WIDTH ;x++){
+        for(int y=0;y < MAP_HIGHT;y++){
+            map[x][y]=-3;
+         }
+    }
+
     mapping_run = false;
     navigation_run = false;
+    mapping_output.end_point.x = -500;
+    mapping_output.end_point.y = 500;
+
 
     navigation_data = NAVIGATION_DATA();
     navigation_output = NAVIGATION_OUTPUT();
@@ -190,7 +200,7 @@ inline void Mapping::mappingLoop(){
             for(int i=0; i<measure.numberOfScans;i++)
             {
                 float dist = measure.Data[i].scanDistance *16+4.7;
-                if(dist > 2000 || dist<200 || (dist>600 && dist<800))
+                if(dist > 2000 || dist < 150 || (dist>600 && dist<800))
                     continue;
 
                 if (measure.Data[i].scanAngle <= 90)
@@ -223,21 +233,32 @@ inline void Mapping::mappingLoop(){
                 points.push_back(point);
             }
         }
-        else{
-            usleep(10000);
-            continue;
-        }
 
 //TODO test if map is reloaded properly
 
         MAPPING_OUTPUT data = getMappingOutput();
 
+        int x = -(int)(data.start_point.x/DIV_CONST);
+        int y = (int)(data.start_point.y/DIV_CONST);
+
+        for(int j=-1;j<=1;j++){
+            for(int m=-1;m<=1;m++){
+                if (x+j > 0 && data.start_point.x+j <MAP_WIDTH && y+m > 0 && y+m < MAP_HIGHT)
+                  map[x+j][y+m]= -3;
+            }
+        }
+
+
+
+        map[x][y] = 0;
+
         map_zaloha.clear();
         map_zaloha=map;
 
+        //std::cout << x << std::endl;
+        //std::cout << y << std::endl;
+
         if(findPath(data.new_maping_pose,data.start_point,data.end_point)){
-            map.clear();
-            map=map_zaloha;
             data.data_ready = true;
             setMappingOutput(data);
         }
@@ -250,9 +271,13 @@ inline void Mapping::mappingLoop(){
             data.data_ready = true;
             setMappingOutput(data);
         }
+
+        map.clear();
+        map=map_zaloha;
+
         //TODO TEST DATA FROM thread in points vector;
         std::cout << "zmapoval som" << std::endl;
-        usleep(300000);
+        usleep(400000);
     }
     return;
 }
@@ -542,7 +567,7 @@ inline void Mapping::navigationLoop(){
 
     setNavigationOutput(vystup_navigacie);
 
-    usleep(100000);
+    usleep(500000);
     }
     setNavigationOutput(vystup_navigacie);
     return;
@@ -566,16 +591,21 @@ void Mapping::createDynamicMap(POINT bod){
 
     int x = (int)(bod.x/DIV_CONST);
     int y = (int)(bod.y/DIV_CONST);
-    map[x][y] = 1;
 
-    for(int j=-3;j<=3;j++){
-        for(int m=-3;m<=3;m++){
-            if (x+j > 0 && x+j <MAP_WIDTH && y+m > 0 && x+m < MAP_HIGHT)
-              map[x+j][y+m]= 1;
+
+    if (map[x][y] < 1){
+
+        map[x][y]++;
+
+        if (map[x][y] == 1){
+            for(int j=-5;j<=5;j++){
+                for(int m=-5;m<=5;m++){
+                    if (x+j > 0 && x+j <MAP_WIDTH && y+m > 0 && x+m < MAP_HIGHT)
+                      map[x+j][y+m]= 1;
+                }
+            }
         }
     }
-    //pthread_mutex_unlock (&mapppin_mutex);
-
 
 }
 
@@ -677,6 +707,9 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
     uint8_t x_pose;
     uint8_t y_pose;
 
+    if (start_y == end_y && end_x == start_x)
+        return false;
+
     map[start_x][start_y] = start_num;
 
 
@@ -687,22 +720,22 @@ bool Mapping::findPath(std::vector<POINT> &cesta, POINT start, POINT end){
                 if(map[x][y]== start_num){
                    x_pose = x+1;
                    y_pose = y;
-                   if(map[x_pose][y_pose] == 0)
+                   if(map[x_pose][y_pose] <= 0)
                        map[x_pose][y_pose] = start_num + 1;
 
                    x_pose = x-1;
                    y_pose = y;
-                   if(map[x_pose][y_pose] == 0)
+                   if(map[x_pose][y_pose] <= 0)
                        map[x_pose][y_pose] = start_num + 1;
 
                    x_pose = x;
                    y_pose = y-1;
-                   if(map[x_pose][y_pose] == 0)
+                   if(map[x_pose][y_pose] <= 0)
                        map[x_pose][y_pose] = start_num + 1;
 
                    x_pose = x;
                    y_pose = y+1;
-                   if(map[x_pose][y_pose] == 0)
+                   if(map[x_pose][y_pose] <= 0)
                        map[x_pose][y_pose] = start_num + 1;
                }
             }
@@ -1027,7 +1060,7 @@ bool Mapping::clearMap(){
 
     for(int x=0;x < MAP_WIDTH ;x++){
         for(int y=0;y < MAP_HIGHT;y++){
-            map[x][y]=0;
+            map[x][y]=-3;
          }
     }
 }

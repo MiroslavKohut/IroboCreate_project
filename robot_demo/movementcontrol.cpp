@@ -118,7 +118,7 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 
     }
 
-    std::cout << "angle" << this->irob_current_pose.angle   << std::endl;
+    //std::cout << "angle" << this->irob_current_pose.angle   << std::endl;
     std::cout << "Suradnice X: " << this->irob_current_pose.x << " Suradnice Y" << this->irob_current_pose.y << std::endl;
 
     // poslatie pozicie do podedenej classy
@@ -132,15 +132,16 @@ void MovementControl::updatePose(float pose_change, float angle_change){
 void MovementControl::moveToNewPose(float speed){
 
     MAPPING_OUTPUT data = getMappingOutput();
+    data.start_point.x=(int)irob_current_pose.x;
+    data.start_point.y=(int)irob_current_pose.y;
+    setMappingOutput(data);
 
     if(getMovementStart()){
 
-        data.start_point.x=(int)irob_current_pose.x;
-        data.start_point.y=(int)irob_current_pose.y;
-        setMappingOutput(data);
         data = getMappingOutput();
 
         while (!data.data_ready){
+
            data = getMappingOutput();
            std::cout << "data not ready" <<std::endl;
            new_pose.clear();
@@ -159,23 +160,29 @@ void MovementControl::moveToNewPose(float speed){
 
         }
 
-        if (XXX == 70){
+        if (XXX == 25){
+
             XXX =0;
+
             bool vect_equal=true;
-            if (new_pose.size()!=data.new_maping_pose.size()){
+            if (new_pose.size()!=data.new_maping_pose.size()-1){
+               // std::cout << "VELKOST SA NEROVNA" << std::endl;
                 vect_equal=false;
             }
             else{
                 for (int i=0;i<new_pose.size();i++){
-                    if(new_pose[i].x!=data.new_maping_pose[i].x || new_pose[i].y!=data.new_maping_pose[i].y)
+                    if(new_pose[i].x!=data.new_maping_pose[i].x*-50 || new_pose[i].y!=data.new_maping_pose[i].y*50)
                         vect_equal=false;
+                        //std::cout << "PRVOK SA NEROVNA" << std::endl;
+                        break;
                 }
             }
 
             if (vect_equal){
-                //FUKITOL
+                //std::cout << "TU SOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOM" << std::endl;
             }
             else{
+                //std::cout << "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}" << std::endl;
                 new_pose.clear();
                 new_pose = data.new_maping_pose;
 
@@ -193,13 +200,13 @@ void MovementControl::moveToNewPose(float speed){
             }
         }
 
-        std::cout << XXX <<std::endl;
+        //std::cout << XXX <<std::endl;
 
-        for (int i=0;i<new_pose.size();i++){
+        /*for (int i=0;i<new_pose.size();i++){
             std::cout << "PATH DATA X" << new_pose[i].x << std::endl;
             std::cout << "PATH DATA Y" << new_pose[i].y << std::endl;
-        }
-        if(movement_state != 2)
+        }*/
+        //if(movement_state != 2)
             XXX++;
 
         if(!new_pose.empty()){
@@ -608,7 +615,7 @@ bool MovementControl::pidControlTranslation(bool local){
     }
     else{
 
-        std::cout << "DISTANCE: " << temp_dist << std::endl;
+        //std::cout << "DISTANCE: " << temp_dist << std::endl;
 
         if (fabs(temp_dist)<POS_DZ){
             //this->robot->move(0,0);
